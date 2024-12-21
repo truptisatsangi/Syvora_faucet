@@ -8,9 +8,12 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     mapping(address => uint256) public lenders;
     mapping(address => uint256) public borrowers;
     mapping(address => bool) public isWhitelistedAccount;
+    mapping(address => uint256) public lastBorrowedTimestamp;
 
     event WhitelistUpdated(address indexed account, bool isWhitelisted);
     event Borrowed(address indexed borrower, uint256 amount);
+    event Lended(address indexed lender, uint256 amount);
+    event Withdrawn(address indexed owner, uint256 amount);
 
     /// @notice Initializer function (replaces constructor)
     function initialize() external initializer {
@@ -18,22 +21,22 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     }
 
     /// @notice Allows whitelisted users to borrow Ether from the contract
-    function borrowFaucet(uint256 amount) external {
+    function borrowFaucet() external {
+        uint256 amount = 0.2 ether;
         require(isWhitelistedAccount[msg.sender], "Not a whitelisted account");
         require(address(this).balance >= amount, "Insufficient balance");
+        require(block.timestamp >= lastBorrowedTimestamp[msg.sender] + 8 hours, "Wait 8 hours before borrowing again");
 
         (bool isSuccess, ) = msg.sender.call{value: amount}("");
         require(isSuccess, "Transfer failed");
 
         borrowers[msg.sender] += amount;
+        lastBorrowedTimestamp[msg.sender] = block.timestamp; // Update borrow timestamp
         emit Borrowed(msg.sender, amount);
     }
 
     /// @notice Updates the whitelist status of an account
-    function updateWhitelistedAccount(
-        address account,
-        bool isWhitelisted
-    ) external onlyOwner {
+    function updateWhitelistedAccount(address account, bool isWhitelisted) external onlyOwner {
         isWhitelistedAccount[account] = isWhitelisted;
         emit WhitelistUpdated(account, isWhitelisted);
     }
@@ -45,6 +48,7 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     function lendFaucet(uint256 amount) external payable {
         require(msg.value == amount, "Incorrect Ether sent");
         lenders[msg.sender] += amount;
+        emit Lended(msg.sender, amount);
     }
 
     /// @notice Allows the owner to withdraw Ether from the treasury
@@ -53,5 +57,7 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
 
         (bool isSuccess, ) = msg.sender.call{value: amount}("");
         require(isSuccess, "Transfer failed");
+
+        emit Withdrawn(msg.sender, amount);
     }
 }
