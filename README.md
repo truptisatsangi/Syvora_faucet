@@ -14,19 +14,19 @@ The `Syvora_Treasury` contract serves as the central treasury with functionaliti
 - **`borrowers`**: A mapping of user addresses to the amount of tokens they have borrowed from the treasury.  
   *(Type: `mapping(address => uint256)`)*
 
-- **`isWhitelistedAccounts`**: A mapping to indicate whether an account is whitelisted for borrowing.  
+- **`isWhitelistedAccount`**: A mapping to indicate whether an account is whitelisted for borrowing.  
   *(Type: `mapping(address => bool)`)*
 
 
 #### **Functionalities**
-1. **`lendTokens(tokenAddress, amount)`**  
-   Allows a user (`msg.sender`) to lend a specified `amount` of tokens (`tokenAddress`) to the `Syvora_Treasury`.
+1. **`lendFaucet(amount)`**  
+   Allows a user (`msg.sender`) to lend a specified `amount` of faucet to the `Syvora_Treasury`.
 
-2. **`borrowTokens(tokenAddress, amount)`**  
-   Enables a user (`msg.sender`) to borrow a specified `amount` of tokens (`tokenAddress`) from the `Syvora_Treasury`.
+2. **`borrowFaucet(amount)`**  
+   Enables a user (`msg.sender`) to borrow a specified `amount` faucet from the `Syvora_Treasury`.
 
-3. **`setWhitelistAccounts(account, bool)`**  
+3. **`updateWhitelistedAccount(account, bool)`**  
    Only whitelisted accounts are permitted to borrow tokens.  
-   This function allows an admin to approve or remove an account's whitelist status.
+   This function allows an admin/owner to approve or remove an account's whitelist status.
 
 ---
