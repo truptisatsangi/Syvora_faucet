@@ -25,7 +25,10 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
         uint256 amount = 0.2 ether;
         require(isWhitelistedAccount[msg.sender], "Not a whitelisted account");
         require(address(this).balance >= amount, "Insufficient balance");
-        require(block.timestamp >= lastBorrowedTimestamp[msg.sender] + 8 hours, "Wait 8 hours before borrowing again");
+        require(
+            block.timestamp >= lastBorrowedTimestamp[msg.sender] + 8 hours,
+            "Wait 8 hours before borrowing again"
+        );
 
         (bool isSuccess, ) = msg.sender.call{value: amount}("");
         require(isSuccess, "Transfer failed");
@@ -36,7 +39,10 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     }
 
     /// @notice Updates the whitelist status of an account
-    function updateWhitelistedAccount(address account, bool isWhitelisted) external onlyOwner {
+    function updateWhitelistedAccount(
+        address account,
+        bool isWhitelisted
+    ) external onlyOwner {
         isWhitelistedAccount[account] = isWhitelisted;
         emit WhitelistUpdated(account, isWhitelisted);
     }
@@ -45,10 +51,10 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     receive() external payable {}
 
     /// @notice Allows lenders to deposit Ether into the treasury
-    function lendFaucet(uint256 amount) external payable {
-        require(msg.value == amount, "Incorrect Ether sent");
-        lenders[msg.sender] += amount;
-        emit Lended(msg.sender, amount);
+    function lendFaucet() external payable {
+        require(msg.value > 0, "Incorrect Ether sent");
+        lenders[msg.sender] += msg.value;
+        emit Lended(msg.sender, msg.value);
     }
 
     /// @notice Allows the owner to withdraw Ether from the treasury
