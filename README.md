@@ -31,4 +31,5 @@ The `Syvora_Treasury` contract serves as the central treasury with functionaliti
 
    https://sepolia.etherscan.io/address/0x37bDb8DD36F4750A8bfEC1925477d3c716a5781C : contract deployed
 
+NEXT TASK: UI & proper source of faucet
 ---
