@@ -21,21 +21,22 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     }
 
     /// @notice Allows whitelisted users to borrow Ether from the contract
-    function borrowFaucet() external {
+    function borrowFaucet(address account) external {
         uint256 amount = 0.2 ether;
-        require(isWhitelistedAccount[msg.sender], "Not a whitelisted account");
+        require(account.balance < 0.5 ether, "Already having sufficient funds");
+        require(isWhitelistedAccount[account], "Not a whitelisted account");
         require(address(this).balance >= amount, "Insufficient balance");
         require(
-            block.timestamp >= lastBorrowedTimestamp[msg.sender] + 8 hours,
+            block.timestamp >= lastBorrowedTimestamp[account] + 8 hours,
             "Wait 8 hours before borrowing again"
         );
 
-        (bool isSuccess, ) = msg.sender.call{value: amount}("");
+        (bool isSuccess, ) = account.call{value: amount}("");
         require(isSuccess, "Transfer failed");
 
-        borrowers[msg.sender] += amount;
-        lastBorrowedTimestamp[msg.sender] = block.timestamp; // Update borrow timestamp
-        emit Borrowed(msg.sender, amount);
+        borrowers[account] += amount;
+        lastBorrowedTimestamp[account] = block.timestamp; // Update borrow timestamp
+        emit Borrowed(account, amount);
     }
 
     /// @notice Updates the whitelist status of an account
@@ -51,10 +52,10 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     receive() external payable {}
 
     /// @notice Allows lenders to deposit Ether into the treasury
-    function lendFaucet() external payable {
-        require(msg.value > 0, "Incorrect Ether sent");
-        lenders[msg.sender] += msg.value;
-        emit Lended(msg.sender, msg.value);
+    function lendFaucet(uint256 amount) external payable {
+        require(amount > 0, "Incorrect Ether sent");
+        lenders[msg.sender] += amount;
+        emit Lended(msg.sender, amount);
     }
 
     /// @notice Allows the owner to withdraw Ether from the treasury
