@@ -2,7 +2,6 @@
 
 import { useTheme } from 'next-themes';
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -87,12 +86,11 @@ const BorrowPage = () => {
             </div>
         );
     }
-    console.log(Number(balance) > Number('0.5'));
+
     return (
         <div className={`fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-opacity-80 ${isDarkMode ? "bg-black" : "bg-white"
             } backdrop-blur-md border-b ${isDarkMode ? "border-gray-800" : "border-gray-200"
             } shadow-md`}>
-            <Header />
             <Card className="w-full max-w-md backdrop-blur-lg shadow-lg border rounded-lg p-4">
                 <CardHeader>
                     <CardTitle className="text-2xl font-medium leading-tight">
