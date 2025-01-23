@@ -52,10 +52,10 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
     receive() external payable {}
 
     /// @notice Allows lenders to deposit Ether into the treasury
-    function lendFaucet(uint256 amount) external payable {
-        require(amount > 0, "Incorrect Ether sent");
-        lenders[msg.sender] += amount;
-        emit Lended(msg.sender, amount);
+    function lendFaucet() external payable {
+        require(msg.value > 0, "Incorrect Ether sent");
+        lenders[msg.sender] += msg.value;
+        emit Lended(msg.sender, msg.value);
     }
 
     /// @notice Allows the owner to withdraw Ether from the treasury
