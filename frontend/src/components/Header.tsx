@@ -47,7 +47,7 @@ export default function Header() {
       <div className="flex items-center gap-4">
         <Link href="/">
           <Image
-            src={isDarkMode ? "/logo_black.png" : "/logo_white.png"}
+            src={isDarkMode ? "/logo_white.png" : "/logo_black.png"}
             alt="Company Logo"
             width={120}
             height={40}
