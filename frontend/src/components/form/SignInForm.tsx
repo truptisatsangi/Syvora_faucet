@@ -1,17 +1,15 @@
 'use client';
 
-import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from '../ui/form';
-import { Button } from '../ui/button';
-import EmailField from '../EmailField';
-import PasswordField from '../PasswordField';
-import Divider from '../Divider';
-import OAuthButtons from '../OAuthButtons';
 import Link from 'next/link';
-import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card';
+import * as z from 'zod';
+import EmailField from '../input-fields/EmailField';
+import PasswordField from '../input-fields/PasswordField';
+import { Button } from '../ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
+import { Form } from '../ui/form';
+import { useAuth } from '../../context/AuthContext';
 
 const FormSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email'),
@@ -80,10 +78,6 @@ const SignInForm = () => {
           </span>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col items-center">
-        <Divider />
-        <OAuthButtons />
-      </CardFooter>
     </Card>
   );
 };
