@@ -105,6 +105,14 @@ body {
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
+@keyframes float4 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(150vw, 50vh) rotate(30deg); }
+  50% { transform: translate(-10vw, -100vh) rotate(-25deg); }
+  75% { transform: translate(8vw, 80vh) rotate(25deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
 .animate-float1 {
   animation: float1 10s infinite ease-in-out;
 }
@@ -115,4 +123,8 @@ body {
 
 .animate-float3 {
   animation: float3 14s infinite ease-in-out;
+}
+
+.animate-float4 {
+  animation: float4 18s infinite ease-in-out;
 }

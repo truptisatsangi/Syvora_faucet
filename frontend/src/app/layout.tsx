@@ -1,12 +1,12 @@
 "use client";
 
 import "./globals.css";
+import { ThemeProvider } from "../components/theme-provider"
+import Header from "../components/nav-bar/Header";
+import { Toaster } from "../components/ui/toaster";
 import { AuthProvider } from "../context/AuthContext";
 import { ConfigProvider } from "../context/ConfigContext";
 import { WalletProvider } from "../context/WalletContext";
-import { ThemeProvider } from "@/components/theme-provider"
-import { Toaster } from "@/components/ui/toaster";
-import Header from "@/components/Header";
 
 export default function RootLayout({
   children,
@@ -29,14 +29,16 @@ export default function RootLayout({
                   <div className="absolute inset-0 z-0 overflow-hidden">
                     <span className="emoji absolute text-8xl transform animate-float1">🤑</span>
                     <span className="emoji absolute text-8xl transform animate-float2">💰</span>
-                    <span className="emoji absolute text-8xl transform animate-float3">💸</span>
+                    <span className="emoji absolute text-8xl transform animate-float3">💲</span>
+                    <span className="emoji absolute text-8xl transform animate-float4">💸</span>
                     <span className="emoji absolute text-8xl transform animate-float2">🤑</span>
                     <span className="emoji absolute text-8xl transform animate-float3">💰</span>
                     <span className="emoji absolute text-8xl transform animate-float1">💸</span>
+                    <span className="emoji absolute text-8xl transform animate-float4">💲</span>
                   </div>
                 </div>
                 {children}
-                <Header/>
+                <Header />
                 <Toaster />
               </AuthProvider>
             </WalletProvider>
