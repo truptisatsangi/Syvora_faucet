@@ -10,7 +10,7 @@ export const useTreasuryBalance = () => {
 
   useEffect(() => {
     fetchTreasuryBalance();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [backendUrl]);
 
   const fetchTreasuryBalance = async () => {
@@ -24,11 +24,18 @@ export const useTreasuryBalance = () => {
       setTreasuryBalance(data.treasuryBalance);
     } catch (error) {
       console.error("Error fetching Treasury Balance:", error);
-      toast({ description: "Failed to fetch Treasury Balance.", variant: "destructive" });
+      toast({
+        description: "Failed to fetch Treasury Balance.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  return { treasuryBalance, loading };
+  const refreshTreasuryBalance = async () => {
+    await fetchTreasuryBalance();
+  };
+
+  return { treasuryBalance, loading, refreshTreasuryBalance };
 };
