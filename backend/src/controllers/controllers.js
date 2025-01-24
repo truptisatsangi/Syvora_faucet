@@ -306,22 +306,22 @@ export const checkOwner = async (req, res) => {
     }
 }
 
-export const checkWhitelistedStatus = async(req,res)=>{
-    if (req.method === "GET") {
+export const checkWhitelistedStatus = async (req, res) => {
+    if (req.method === "POST") {
         try {
-          const { account } = req.query;
-          if (!account) {
-            return res.status(400).json({ error: "Account address is required" });
-          }
-    
-          const isWhitelisted = await syvoraTreasury.isWhitelistedAccount(account);
-    
-          return res.status(200).json({ isWhitelisted });
+            const { account } = req.body;
+            if (!account) {
+                return res.status(400).json({ error: "Account address is required" });
+            }
+
+            const isWhitelisted = await syvoraTreasury.isWhitelistedAccount(account);
+
+            return res.status(200).json({ isWhitelisted });
         } catch (error) {
-          console.error(error);
-          return res.status(500).json({ error: "Internal server error" });
+            console.error(error);
+            return res.status(500).json({ error: "Internal server error" });
         }
-      }
-    
-      res.status(405).json({ error: "Method not allowed" });
+    }
+
+    res.status(405).json({ error: "Method not allowed" });
 }

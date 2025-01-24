@@ -26,6 +26,6 @@ router.post("/auth/signup", signUp);
 router.post("/auth/signin", signIn);
 
 router.post("/isOwner", checkOwner);
-router.get("/isWhitelisted", checkWhitelistedStatus);
+router.post("/isWhitelisted", checkWhitelistedStatus);
 
 export default router;
