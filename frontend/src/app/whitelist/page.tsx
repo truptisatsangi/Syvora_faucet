@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from "react";
 import { useTheme } from "next-themes";
-import WhitelistForm from "../../components/WhiteListForm";
-import WhitelistTable from "../../components/WhiteListTable";
-import UnauthorizedAlert from "../../components/UnauthorizedAlert";
-import { useOwnerCheck } from "@/hooks/useOwnerCheck";
-import { Spinner } from "@/components/ui/spinner";
+import React, { useState } from "react";
+import UnauthorizedAlert from "../../components/alerts/UnauthorizedAlert";
+import WhitelistForm from "../../components/forms/WhiteListForm";
+import WhitelistTable from "../../components/tables/WhiteListTable";
+import { Spinner } from "../../components/ui/spinner";
+import { useOwnerCheck } from "../../hooks/useOwnerCheck";
 
 const WhitelistPage = () => {
     const { isOwner, isCheckingOwner } = useOwnerCheck();
@@ -30,7 +30,7 @@ const WhitelistPage = () => {
     return (
         <div
             className={`fixed top-0 left-0 right-0 z-50 h-full px-8 flex items-center justify-between bg-opacity-80 ${isDarkMode ? "bg-black" : "bg-white"
-                } backdrop-blur-md border-b ${isDarkMode ? "border-gray-800" : "border-gray-200"
+                } backdrop-blur-sm border-b ${isDarkMode ? "border-gray-800" : "border-gray-200"
                 } shadow-md`}
         >
             <div className="w-full h-full flex flex-row">
