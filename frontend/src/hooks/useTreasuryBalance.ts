@@ -10,6 +10,7 @@ export const useTreasuryBalance = () => {
 
   useEffect(() => {
     fetchTreasuryBalance();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [backendUrl]);
 
   const fetchTreasuryBalance = async () => {

@@ -13,6 +13,7 @@ export const useWalletBalance = () => {
         if (account && provider) {
             fetchWalletBalance();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [account, provider]);
 
     const fetchWalletBalance = async () => {

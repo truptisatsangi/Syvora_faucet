@@ -44,7 +44,7 @@ const useWhitelistedStatus = (account: string) => {
         };
 
         fetchWhitelistedStatus();
-    }, [account]);
+    }, [account, backendUrl, toast]);
 
     return { isWhitelisted, loading, error };
 };
