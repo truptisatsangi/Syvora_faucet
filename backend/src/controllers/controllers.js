@@ -6,7 +6,7 @@ import { syvoraTreasury, provider } from '../utils/contractInstance.js';
 import { ensureUserExists, handleBlockchainTransaction } from '../utils/helpers.js';
 
 export const signUp = async (req, res) => {
-    const { firstName, lastName, email, password, walletAddress } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     try {
         const existingUser = await User.findOne({ email });
@@ -21,16 +21,9 @@ export const signUp = async (req, res) => {
             lastName,
             email,
             password: hashedPassword,
-            walletAddress,
         });
 
         await newUser.save();
-
-        await updateWhitelist(
-            req,
-            res,
-            { account: newUser.walletAddress, isWhitelisted: true }
-        );
 
         res.status(201).json({ message: "User registered and whitelisted successfully." });
     } catch (err) {
@@ -38,9 +31,9 @@ export const signUp = async (req, res) => {
     }
 };
 
-export const updateWhitelist = async (req, res, user = null) => {
+export const updateWhitelist = async (req, res) => {
     try {
-        const { account, isWhitelisted } = user || req.body;
+        const { account, isWhitelisted } = req.body;
 
         if (!account || typeof isWhitelisted === "undefined") {
             return res.status(400).json({
@@ -100,8 +93,7 @@ export const signIn = async (req, res) => {
             user: {
                 id: user._id,
                 firstName: user.firstName,
-                lastName: user.lastName,
-                walletAddress: user.walletAddress,
+                lastName: user.lastName
             },
         });
     } catch (err) {
@@ -314,3 +306,22 @@ export const checkOwner = async (req, res) => {
     }
 }
 
+export const checkWhitelistedStatus = async(req,res)=>{
+    if (req.method === "GET") {
+        try {
+          const { account } = req.query;
+          if (!account) {
+            return res.status(400).json({ error: "Account address is required" });
+          }
+    
+          const isWhitelisted = await syvoraTreasury.isWhitelistedAccount(account);
+    
+          return res.status(200).json({ isWhitelisted });
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({ error: "Internal server error" });
+        }
+      }
+    
+      res.status(405).json({ error: "Method not allowed" });
+}
