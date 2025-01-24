@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { useWallet } from "@/context/WalletContext";
-import { useToast } from "@/hooks/use-toast";
 import { ethers } from "ethers";
+import { useEffect, useState } from "react";
+import { useWallet } from "../context/WalletContext";
+import { useToast } from "../hooks/use-toast";
 
 export const useWalletBalance = () => {
     const { account, provider } = useWallet();
