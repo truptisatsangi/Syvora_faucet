@@ -35,7 +35,7 @@ contract SyvoraTreasury is Initializable, Ownable2StepUpgradeable {
         require(isSuccess, "Transfer failed");
 
         borrowers[account] += amount;
-        lastBorrowedTimestamp[account] = block.timestamp; // Update borrow timestamp
+        lastBorrowedTimestamp[account] = block.timestamp;
         emit Borrowed(account, amount);
     }
 

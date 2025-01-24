@@ -29,7 +29,7 @@ The `Syvora_Treasury` contract serves as the central treasury with functionaliti
    Only whitelisted accounts are permitted to borrow tokens.  
    This function allows an admin/owner to approve or remove an account's whitelist status.
 
-   https://sepolia.etherscan.io/address/0x37bDb8DD36F4750A8bfEC1925477d3c716a5781C : contract deployed
+   https://sepolia.etherscan.io/address/0x133D60aaE85A954cd1aD04931cD1b1215189C69a : contract deployed
 
 NEXT TASK: UI & proper source of faucet
 ---

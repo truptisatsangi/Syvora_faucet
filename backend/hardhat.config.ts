@@ -13,20 +13,16 @@ const config: HardhatUserConfig = {
       chainId: 1337,
     },
     sepolia: {
-      url:
-        process.env.ARCHIVE_NODE_sepolia ||
-        "https://ethereum-sepolia.blockpi.network/v1/rpc/public",
+      url: process.env.INFURA_SEPOLIA_RPC_URL,
       chainId: 11155111,
       live: true,
-      gasPrice: 20000000000, // 20 gwei
-      accounts: process.env.DEPLOYER_PRIVATE_KEY
-        ? [`0x${process.env.DEPLOYER_PRIVATE_KEY}`]
-        : [],
+      gasPrice: 20000000000,
+      accounts: [`0x${process.env.PRIVATE_KEY}`],
     },
   },
   namedAccounts: {
     deployer: {
-      default: 0, // First account in the wallet will be used as the deployer
+      default: 0,
     },
   },
   etherscan: {
