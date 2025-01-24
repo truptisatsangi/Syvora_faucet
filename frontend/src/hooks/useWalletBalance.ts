@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useWallet } from "../context/WalletContext";
 import { useToast } from "../hooks/use-toast";
 
@@ -9,14 +9,9 @@ export const useWalletBalance = () => {
     const [loading, setLoading] = useState(false);
     const { toast } = useToast();
 
-    useEffect(() => {
-        if (account && provider) {
-            fetchWalletBalance();
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [account, provider]);
+    const fetchWalletBalance = useCallback(async () => {
+        if (!account || !provider) return;
 
-    const fetchWalletBalance = async () => {
         setLoading(true);
         try {
             const balanceInWei = await provider.getBalance(account);
@@ -39,7 +34,15 @@ export const useWalletBalance = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [account, provider, toast]);
 
-    return { balance, loading };
+    useEffect(() => {
+        fetchWalletBalance();
+    }, [fetchWalletBalance]);
+
+    const refreshWalletBalance = async () => {
+        await fetchWalletBalance();
+      };
+
+    return { balance, loading, refreshWalletBalance };
 };
