@@ -8,7 +8,8 @@ import {
     signIn,
     getWalletAddressBalance, 
     getTreasuryBalance,
-    checkOwner
+    checkOwner,
+    checkWhitelistedStatus
 } from "../controllers/controllers.js";
 
 const router = express.Router();
@@ -25,5 +26,6 @@ router.post("/auth/signup", signUp);
 router.post("/auth/signin", signIn);
 
 router.post("/isOwner", checkOwner);
+router.get("/isWhitelisted", checkWhitelistedStatus);
 
 export default router;
