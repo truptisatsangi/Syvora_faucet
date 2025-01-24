@@ -71,45 +71,35 @@ body {
   }
 }
 
-/* Glass Effect */
-.glass-effect {
-  background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white */
-  backdrop-filter: blur(10px); /* Frosted glass effect */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
-  border-radius: 12px; /* Rounded corners */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-/* Floating Animations */
 @keyframes float1 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(10vw, 100vh) rotate(15deg); }
-  50% { transform: translate(-10vw, 90vh) rotate(-15deg); }
-  75% { transform: translate(20vw, -100vh) rotate(30deg); }
+  25% { transform: translate(20vw, 80vh) rotate(10deg); }
+  50% { transform: translate(-15vw, 60vh) rotate(-20deg); }
+  75% { transform: translate(25vw, -50vh) rotate(30deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 @keyframes float2 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(-90vw, 30vh) rotate(-20deg); }
-  50% { transform: translate(100vw, -10vh) rotate(25deg); }
-  75% { transform: translate(-60vw, 100vh) rotate(15deg); }
+  25% { transform: translate(-70vw, 20vh) rotate(-15deg); }
+  50% { transform: translate(50vw, -30vh) rotate(25deg); }
+  75% { transform: translate(-40vw, 90vh) rotate(10deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 @keyframes float3 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(150vw, 50vh) rotate(30deg); }
-  50% { transform: translate(-120vw, -100vh) rotate(-25deg); }
-  75% { transform: translate(80vw, 120vh) rotate(20deg); }
+  25% { transform: translate(100vw, 40vh) rotate(20deg); }
+  50% { transform: translate(-80vw, -90vh) rotate(-25deg); }
+  75% { transform: translate(60vw, 100vh) rotate(15deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 @keyframes float4 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(150vw, 50vh) rotate(30deg); }
-  50% { transform: translate(-10vw, -100vh) rotate(-25deg); }
-  75% { transform: translate(8vw, 80vh) rotate(25deg); }
+  25% { transform: translate(120vw, 70vh) rotate(25deg); }
+  50% { transform: translate(-50vw, -70vh) rotate(-20deg); }
+  75% { transform: translate(40vw, 60vh) rotate(35deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
