@@ -23,7 +23,7 @@ const BorrowPage = () => {
     const { backendUrl } = useConfig();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
-    const { balance, loading: balanceLoading } = useWalletBalance();
+    const { balance, loading: balanceLoading,  refreshWalletBalance} = useWalletBalance();
     const { theme } = useTheme();
     const isDarkMode = theme === 'dark';
     const { isWhitelisted, loading: whitelistStatusLoading, refreshWhitelistStatus } = useWhitelistedStatus();
@@ -102,6 +102,7 @@ const BorrowPage = () => {
                     title: 'Success',
                     description: 'Tokens borrowed successfully.',
                 });
+                refreshWalletBalance();
             } else {
                 toast({
                     variant: 'destructive',

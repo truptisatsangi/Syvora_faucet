@@ -6,18 +6,21 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 import { Spinner } from '../../components/ui/spinner';
 import { useWallet } from '../../context/WalletContext';
 import { useToast } from '../../hooks/use-toast';
 import { useTreasuryBalance } from '../../hooks/useTreasuryBalance';
+import { useWalletBalance } from '../../hooks/useWalletBalance';
 import { SYVORA_TREASURY_ABI } from '../../utils/constants';
 
 const LendPage = () => {
     const { isConnected, account, signer, loading: walletLoading } = useWallet();
+    const { refreshWalletBalance } = useWalletBalance();
     const { toast } = useToast();
     const [amount, setAmount] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { treasuryBalance, loading: treasuryLoading } = useTreasuryBalance();
+    const { treasuryBalance, loading: treasuryLoading, refreshTreasuryBalance } = useTreasuryBalance();
     const { theme } = useTheme();
     const isDarkMode = theme === 'dark';
 
@@ -67,6 +70,8 @@ const LendPage = () => {
             });
 
             setAmount('');
+            await refreshTreasuryBalance();
+            await refreshWalletBalance();
         } catch (error) {
             console.error('Lend failed:', error);
             toast({
@@ -92,7 +97,6 @@ const LendPage = () => {
             className={`fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center px-8 bg-opacity-80 ${isDarkMode ? 'bg-black' : 'bg-white'
                 } backdrop-blur-sm`}
         >
-
             <div className="absolute top-24 right-8 text-lg font-semibold">
                 {treasuryLoading ? (
                     <Spinner size="sm" />
@@ -112,9 +116,9 @@ const LendPage = () => {
                         Lend your tokens to earn rewards. Ensure your wallet is connected to proceed.
                     </p>
                     <div>
-                        <label htmlFor="amount" className="block text-sm font-semibold mb-2">
+                        <Label htmlFor="amount" className="text-sm font-semibold mb-2">
                             Enter Amount in Ether
-                        </label>
+                        </Label>
                         <Input
                             id="amount"
                             type="number"
