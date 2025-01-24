@@ -3,14 +3,14 @@
 import { ethers } from 'ethers';
 import { useTheme } from 'next-themes';
 import React, { useState, useEffect } from 'react';
-import { useWallet } from '@/context/WalletContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Spinner } from '@/components/ui/spinner';
-import { useToast } from '@/hooks/use-toast';
-import { SYVORA_TREASURY_ABI } from '@/utils/constants';
-import { useTreasuryBalance } from '@/hooks/useTreasuryBalance';
+import { Button } from '../../components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { Spinner } from '../../components/ui/spinner';
+import { useWallet } from '../../context/WalletContext';
+import { useToast } from '../../hooks/use-toast';
+import { useTreasuryBalance } from '../../hooks/useTreasuryBalance';
+import { SYVORA_TREASURY_ABI } from '../../utils/constants';
 
 const LendPage = () => {
     const { isConnected, account, signer, loading: walletLoading } = useWallet();
@@ -55,7 +55,6 @@ const LendPage = () => {
                 gasLimit: 300000,
             });
 
-            console.log('Transaction sent:', tx);
             const receipt = await tx.wait();
 
             if (receipt.status !== 1) {
@@ -91,7 +90,7 @@ const LendPage = () => {
     return (
         <div
             className={`fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center px-8 bg-opacity-80 ${isDarkMode ? 'bg-black' : 'bg-white'
-                } backdrop-blur-md`}
+                } backdrop-blur-sm`}
         >
 
             <div className="absolute top-24 right-8 text-lg font-semibold">
