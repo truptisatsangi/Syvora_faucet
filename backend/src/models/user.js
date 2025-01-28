@@ -4,9 +4,9 @@ const userSchema = new mongoose.Schema({
     walletAddress: {
         type: String,
         unique: true,
-        required: true,
         lowercase: true,
         index: true,
+        sparse: true,
     },
     firstName: {
         type: String,

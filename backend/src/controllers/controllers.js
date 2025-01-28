@@ -6,10 +6,14 @@ import { syvoraTreasury, provider } from '../utils/contractInstance.js';
 import { ensureUserExists, handleBlockchainTransaction } from '../utils/helpers.js';
 
 export const signUp = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, walletAddress } = req.body;
 
     try {
-        const existingUser = await User.findOne({ email });
+        if (!firstName || !lastName || !email || !password) {
+            return res.status(400).json({ message: "All fields are required." });
+        }
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             return res.status(400).json({ message: "Email is already registered." });
         }
@@ -19,15 +23,24 @@ export const signUp = async (req, res) => {
         const newUser = new User({
             firstName,
             lastName,
-            email,
+            email: email.toLowerCase(),
             password: hashedPassword,
+            walletAddress: walletAddress ? walletAddress.toLowerCase() : "",
         });
 
         await newUser.save();
 
-        res.status(201).json({ message: "User registered and whitelisted successfully." });
+        res.status(201).json({
+            success: true,
+            message: "User registered successfully."
+        });
     } catch (err) {
-        res.status(500).json({ message: "An error occurred during sign-up." });
+        console.error("Sign-up error:", err);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred during sign-up.",
+            error: err.message,
+        });
     }
 };
 
@@ -65,9 +78,11 @@ export const updateWhitelist = async (req, res) => {
             user: updatedUser,
         });
     } catch (error) {
+        console.error("Error updating whitelist:", error);
         res.status(500).json({
             success: false,
             message: "Error updating whitelist.",
+            error: error.message,
         });
     }
 };
