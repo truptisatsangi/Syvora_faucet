@@ -6,7 +6,7 @@ import { syvoraTreasury, provider } from '../utils/contractInstance.js';
 import { ensureUserExists, handleBlockchainTransaction } from '../utils/helpers.js';
 
 export const signUp = async (req, res) => {
-    const { firstName, lastName, email, password, walletAddress } = req.body;
+    const { firstName, lastName, email, password } = req.body;
 
     try {
         if (!firstName || !lastName || !email || !password) {
@@ -25,7 +25,7 @@ export const signUp = async (req, res) => {
             lastName,
             email: email.toLowerCase(),
             password: hashedPassword,
-            walletAddress: walletAddress ? walletAddress.toLowerCase() : "",
+            walletAddress: null,
         });
 
         await newUser.save();

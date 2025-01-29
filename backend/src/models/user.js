@@ -1,5 +1,3 @@
-import mongoose from 'mongoose';
-
 const userSchema = new mongoose.Schema({
     walletAddress: {
         type: String,
@@ -7,6 +5,7 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         index: true,
         sparse: true,
+        default: null, 
     },
     firstName: {
         type: String,
@@ -44,5 +43,3 @@ const userSchema = new mongoose.Schema({
         default: 0,
     },
 }, { timestamps: true });
-
-export default mongoose.model('User', userSchema);
