@@ -31,4 +31,7 @@ The `Syvora_Treasury` contract serves as the central treasury with functionaliti
 
   [https://sepolia.etherscan.io/address/0x133D60aaE85A954cd1aD04931cD1b1215189C69a](https://sepolia.etherscan.io/address/0x133D60aaE85A954cd1aD04931cD1b1215189C69a) : contract deployed
 
+Frontend (on vercel) :- [https://syvora-faucet.vercel.app/](https://syvora-faucet.vercel.app/)
+Backend (on render):- [https://syvora-faucet.onrender.com](https://syvora-faucet.onrender.com)
+
 ---
