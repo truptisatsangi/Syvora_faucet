@@ -6,10 +6,10 @@ import { syvoraTreasury, provider } from '../utils/contractInstance.js';
 import { ensureUserExists, handleBlockchainTransaction } from '../utils/helpers.js';
 
 export const signUp = async (req, res) => {
-    const { firstName, lastName, email, password } = req.body;
-
     try {
-        if (!firstName || !lastName || !email || !password) {
+        const { firstName, lastName, email, password } = req.body;
+
+        if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !password?.trim()) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -21,18 +21,17 @@ export const signUp = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
-            firstName,
-            lastName,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
             email: email.toLowerCase(),
             password: hashedPassword,
-            walletAddress: null,
         });
 
         await newUser.save();
 
         res.status(201).json({
             success: true,
-            message: "User registered successfully."
+            message: "User registered successfully.",
         });
     } catch (err) {
         console.error("Sign-up error:", err);
