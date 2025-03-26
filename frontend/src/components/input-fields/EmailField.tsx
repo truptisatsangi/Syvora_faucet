@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Control, FieldError } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/form';
-import { Input } from '../ui/input';
+import { Control, FieldError } from "react-hook-form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
 
 interface EmailFieldProps {
   control: Control<any, any>;

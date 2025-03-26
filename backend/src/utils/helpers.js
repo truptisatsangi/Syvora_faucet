@@ -1,4 +1,4 @@
-import User from '../models/user.js';
+import User from "../models/user.js";
 
 export const catchAsync = (fn) => (req, res, next) => {
   fn(req, res, next).catch(next);
@@ -7,23 +7,23 @@ export const catchAsync = (fn) => (req, res, next) => {
 export const handleBlockchainTransaction = async (tx) => {
   const receipt = await tx.wait();
   if (receipt.status !== 1) {
-    throw new Error('Blockchain transaction failed.');
+    throw new Error("Blockchain transaction failed.");
   }
   return receipt;
 };
 
-export const ensureUserExists = async (walletAddress) => {
-  if (!walletAddress) {
-    throw new Error('Wallet address is required');
+export const ensureUserExists = async (email) => {
+  if (!email) {
+    throw new Error("Email address is required");
   }
 
-  const normalizedAddress = walletAddress.toLowerCase();
+  const normalizedEmail = email.toLowerCase();
 
-  let user = await User.findOne({ walletAddress: normalizedAddress });
+  let user = await User.findOne({ email: normalizedEmail });
 
   if (!user) {
-    user = await User.create({ walletAddress: normalizedAddress });
+    user = await User.create({ email: normalizedEmail });
   }
 
-  return user._id;
+  return user;
 };

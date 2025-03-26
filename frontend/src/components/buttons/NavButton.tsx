@@ -24,8 +24,8 @@ export const NavButton: React.FC<NavButtonProps> = ({ path, label }) => {
             ? `bg-primary text-black`
             : `bg-primary text-white`
           : isDarkMode
-          ? "text-gray-400 hover:text-white hover:scale-105"
-          : "text-gray-600 hover:text-black hover:scale-105"
+            ? "text-gray-400 hover:text-white hover:scale-105"
+            : "text-gray-600 hover:text-black hover:scale-105"
       }`}
     >
       {label.toUpperCase()}

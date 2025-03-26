@@ -1,5 +1,5 @@
-import GoogleSignInButton from '../buttons/GoogleSignInButton';
-import GithubSignInButton from '../buttons/GithubSignInButton';
+import GoogleSignInButton from "../buttons/GoogleSignInButton";
+import GithubSignInButton from "../buttons/GithubSignInButton";
 
 const OAuthButtons = () => (
   <div className="w-full space-y-4">

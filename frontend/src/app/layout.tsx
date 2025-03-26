@@ -1,7 +1,7 @@
 "use client";
 
 import "./globals.css";
-import { ThemeProvider } from "../components/theme-provider"
+import { ThemeProvider } from "../components/theme-provider";
 import Header from "../components/nav-bar/Header";
 import { Toaster } from "../components/ui/toaster";
 import { AuthProvider } from "../context/AuthContext";
@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className='h-screen flex flex-col justify-center items-center'>
+      <body className="h-screen flex flex-col justify-center items-center">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -27,14 +27,30 @@ export default function RootLayout({
               <AuthProvider>
                 <div className="relative flex h-screen w-screen items-center justify-center">
                   <div className="absolute inset-0 z-0 overflow-hidden">
-                    <span className="emoji absolute text-8xl transform animate-float1">🤑</span>
-                    <span className="emoji absolute text-8xl transform animate-float2">💰</span>
-                    <span className="emoji absolute text-8xl transform animate-float3">💲</span>
-                    <span className="emoji absolute text-8xl transform animate-float4">💸</span>
-                    <span className="emoji absolute text-8xl transform animate-float2">🤑</span>
-                    <span className="emoji absolute text-8xl transform animate-float3">💰</span>
-                    <span className="emoji absolute text-8xl transform animate-float1">💸</span>
-                    <span className="emoji absolute text-8xl transform animate-float4">💲</span>
+                    <span className="emoji absolute text-8xl transform animate-float1">
+                      🤑
+                    </span>
+                    <span className="emoji absolute text-8xl transform animate-float2">
+                      💰
+                    </span>
+                    <span className="emoji absolute text-8xl transform animate-float3">
+                      💲
+                    </span>
+                    <span className="emoji absolute text-8xl transform animate-float4">
+                      💸
+                    </span>
+                    <span className="emoji absolute text-8xl transform animate-float2">
+                      🤑
+                    </span>
+                    <span className="emoji absolute text-8xl transform animate-float3">
+                      💰
+                    </span>
+                    <span className="emoji absolute text-8xl transform animate-float1">
+                      💸
+                    </span>
+                    <span className="emoji absolute text-8xl transform animate-float4">
+                      💲
+                    </span>
                   </div>
                 </div>
                 {children}

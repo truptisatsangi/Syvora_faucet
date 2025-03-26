@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import * as React from "react";
 import { useState } from "react";
@@ -16,7 +16,7 @@ import { Label } from "../../components/ui/label";
 import { Spinner } from "../../components/ui/spinner";
 import { useConfig } from "../../context/ConfigContext";
 import { useWallet } from "../../context/WalletContext";
-import { useToast } from '../../hooks/use-toast';
+import { useToast } from "../../hooks/use-toast";
 
 export function CardWithForm() {
   const { loading: walletLoading } = useWallet();
@@ -47,7 +47,10 @@ export function CardWithForm() {
       setWithdrawAmount("");
     } catch (error) {
       console.error("Error withdrawing funds:", error);
-      toast({ description: "Error withdrawing funds. Please try again.", variant: "destructive" });
+      toast({
+        description: "Error withdrawing funds. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsWithdrawing(false);
     }
@@ -63,7 +66,12 @@ export function CardWithForm() {
         <form>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="amount" className="block text-sm font-semibold mb-2">Amount to Withdraw</Label>
+              <Label
+                htmlFor="amount"
+                className="block text-sm font-semibold mb-2"
+              >
+                Amount to Withdraw
+              </Label>
               <Input
                 id="amount"
                 placeholder="Enter amount"
@@ -81,11 +89,7 @@ export function CardWithForm() {
           onClick={handleWithdraw}
           disabled={!withdrawAmount || walletLoading || isWithdrawing}
         >
-          {isWithdrawing ? (
-            <Spinner size="sm" />
-          ) : (
-            "Withdraw"
-          )}
+          {isWithdrawing ? <Spinner size="sm" /> : "Withdraw"}
         </Button>
       </CardFooter>
     </Card>

@@ -6,7 +6,7 @@ const WalletContext = createContext();
 export const WalletProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [account, setAccount] = useState(null);
-  const [loading, ] = useState(false);
+  const [loading] = useState(false);
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
 
@@ -31,7 +31,7 @@ export const WalletProvider = ({ children }) => {
 
         const browserProvider = new ethers.BrowserProvider(window.ethereum);
         const userSigner = await browserProvider.getSigner();
-        
+
         setProvider(browserProvider);
         setSigner(userSigner);
       } catch (error) {

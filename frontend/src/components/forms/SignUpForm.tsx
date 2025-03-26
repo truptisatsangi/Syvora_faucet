@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Button } from '../ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Form } from '../ui/form';
-import { useConfig } from '../../context/ConfigContext';
-import { useToast } from '../../hooks/use-toast';
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { Form } from "../ui/form";
+import { useConfig } from "../../context/ConfigContext";
+import { useToast } from "../../hooks/use-toast";
 
 const SignUpFormSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   email: z
     .string()
-    .email('Invalid email')
-    .endsWith('@qodeleaf.com', 'Email must end with @qodeleaf.com'),
-  password: z.string().min(8, 'Password must have at least 8 characters'),
+    .email("Invalid email")
+    .endsWith("@qodeleaf.com", "Email must end with @qodeleaf.com"),
+  password: z.string().min(8, "Password must have at least 8 characters"),
 });
 
 type SignUpFormValues = z.infer<typeof SignUpFormSchema>;
@@ -35,10 +35,10 @@ const SignUpForm = () => {
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(SignUpFormSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
     },
   });
 
@@ -47,8 +47,8 @@ const SignUpForm = () => {
 
     try {
       const response = await fetch(`${backendUrl}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
@@ -56,27 +56,27 @@ const SignUpForm = () => {
 
       if (response.ok) {
         toast({
-          title: 'Sign-up successful',
-          description: 'Your account has been created successfully.',
-          variant: 'default',
+          title: "Sign-up successful",
+          description: "Your account has been created successfully.",
+          variant: "default",
           duration: 4000,
         });
 
-        router.push('/signin');
+        router.push("/signin");
       } else {
         toast({
-          title: 'Sign-up failed',
-          description: data.message || 'An error occurred during sign-up.',
-          variant: 'destructive',
+          title: "Sign-up failed",
+          description: data.message || "An error occurred during sign-up.",
+          variant: "destructive",
           duration: 4000,
         });
       }
     } catch (err) {
       console.error(err);
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred.',
-        variant: 'destructive',
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
         duration: 4000,
       });
     } finally {
@@ -88,18 +88,16 @@ const SignUpForm = () => {
     <div className="flex items-center justify-center min-h-screen mt-20">
       <Card className="w-full max-w-lg mx-auto px-2">
         <CardHeader>
-          <CardTitle className="text-center text-lg font-semibold">Sign Up</CardTitle>
+          <CardTitle className="text-center text-lg font-semibold">
+            Sign Up
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...form.register('email')}
-                />
+                <Input id="email" type="email" {...form.register("email")} />
                 {form.formState.errors.email && (
                   <p className="mt-1 text-sm text-red-600">
                     {form.formState.errors.email.message}
@@ -112,7 +110,7 @@ const SignUpForm = () => {
                 <Input
                   id="password"
                   type="password"
-                  {...form.register('password')}
+                  {...form.register("password")}
                 />
                 {form.formState.errors.password && (
                   <p className="mt-1 text-sm text-red-600">
@@ -123,10 +121,7 @@ const SignUpForm = () => {
 
               <div>
                 <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  {...form.register('firstName')}
-                />
+                <Input id="firstName" {...form.register("firstName")} />
                 {form.formState.errors.firstName && (
                   <p className="mt-1 text-sm text-red-600">
                     {form.formState.errors.firstName.message}
@@ -136,10 +131,7 @@ const SignUpForm = () => {
 
               <div>
                 <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  {...form.register('lastName')}
-                />
+                <Input id="lastName" {...form.register("lastName")} />
                 {form.formState.errors.lastName && (
                   <p className="mt-1 text-sm text-red-600">
                     {form.formState.errors.lastName.message}
@@ -147,15 +139,19 @@ const SignUpForm = () => {
                 )}
               </div>
 
-              <Button className="w-full mt-6" type="submit" disabled={isLoading}>
-                {isLoading ? 'Signing Up...' : 'Sign Up'}
+              <Button
+                className="w-full mt-6"
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? "Signing Up..." : "Sign Up"}
               </Button>
             </form>
           </Form>
 
           <div className="flex justify-between mt-2 text-sm text-gray-600">
             <span>
-              Already have an account?{' '}
+              Already have an account?{" "}
               <Link href="/signin" className="hover:underline text-blue-500">
                 Sign In
               </Link>

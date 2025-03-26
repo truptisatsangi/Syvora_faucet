@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import { Button } from "../../components/ui/button";
 import { Skeleton } from "../../components/ui/skeleton";
 import {
@@ -24,7 +24,10 @@ interface WhitelistTableProps {
   isLoading: boolean;
 }
 
-const WhitelistTable: React.FC<WhitelistTableProps> = ({ whitelist, isLoading }) => {
+const WhitelistTable: React.FC<WhitelistTableProps> = ({
+  whitelist,
+  isLoading,
+}) => {
   return (
     <div className="flex justify-center items-center min-h-full">
       <div className="max-w-4xl w-full rounded-lg p-6">
@@ -59,7 +62,11 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({ whitelist, isLoading })
                   <TableCell className="font-medium">{email}</TableCell>
                   <TableCell>{walletAddress}</TableCell>
                   <TableCell className="text-center">
-                    <Button variant="destructive" size="sm" className="hover:bg-red-500">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="hover:bg-red-500"
+                    >
                       Remove
                     </Button>
                   </TableCell>
@@ -67,7 +74,10 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({ whitelist, isLoading })
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-6 text-gray-500">
+                <TableCell
+                  colSpan={3}
+                  className="text-center py-6 text-gray-500"
+                >
                   No whitelisted accounts found.
                 </TableCell>
               </TableRow>
@@ -76,8 +86,12 @@ const WhitelistTable: React.FC<WhitelistTableProps> = ({ whitelist, isLoading })
           {!isLoading && whitelist.length > 0 && (
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={2} className="font-semibold">Total Accounts</TableCell>
-                <TableCell className="text-center">{whitelist.length}</TableCell>
+                <TableCell colSpan={2} className="font-semibold">
+                  Total Accounts
+                </TableCell>
+                <TableCell className="text-center">
+                  {whitelist.length}
+                </TableCell>
               </TableRow>
             </TableFooter>
           )}

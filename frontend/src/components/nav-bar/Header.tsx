@@ -13,7 +13,8 @@ import { Button } from "../ui/button";
 
 export default function Header() {
   const { theme } = useTheme();
-  const { isConnected, account, connectMetaMask, disconnectWallet } = useWallet();
+  const { isConnected, account, connectMetaMask, disconnectWallet } =
+    useWallet();
   const { signOut, user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
@@ -28,11 +29,13 @@ export default function Header() {
     checkOwner();
   }
 
-  return pathname !== '/' ? (
+  return pathname !== "/" ? (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 h-[80px] px-8 flex items-center justify-between bg-opacity-80 ${isDarkMode ? "bg-black" : "bg-white"
-        } backdrop-blur-md border-b ${isDarkMode ? "border-gray-800" : "border-gray-200"
-        } shadow-md`}
+      className={`fixed top-0 left-0 right-0 z-50 h-[80px] px-8 flex items-center justify-between bg-opacity-80 ${
+        isDarkMode ? "bg-black" : "bg-white"
+      } backdrop-blur-md border-b ${
+        isDarkMode ? "border-gray-800" : "border-gray-200"
+      } shadow-md`}
     >
       <div className="flex items-center gap-4">
         <Link href="/">
@@ -74,13 +77,16 @@ export default function Header() {
                 CONNECT
               </Button>
             )}
-            {user && <Button variant="destructive" onClick={signOut}>
-              Logout
-            </Button>
-            }
-            {!user && pathname === '/lend' ? <Button variant="default" onClick={() => router.push('/signin')}>
-              Login
-            </Button> : null}
+            {user && (
+              <Button variant="destructive" onClick={signOut}>
+                Logout
+              </Button>
+            )}
+            {!user && pathname === "/lend" ? (
+              <Button variant="default" onClick={() => router.push("/signin")}>
+                Login
+              </Button>
+            ) : null}
           </div>
         </>
       )}
@@ -89,8 +95,8 @@ export default function Header() {
         <div>
           <NavButton path="/lend" label="Lend Tokens" />
           <ToggleThemeButton />
-        </div>)}
-
+        </div>
+      )}
     </header>
   ) : null;
 }
