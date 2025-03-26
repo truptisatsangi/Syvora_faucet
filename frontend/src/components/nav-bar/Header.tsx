@@ -1,15 +1,15 @@
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { useWallet } from "../../context/WalletContext";
 import { ToggleThemeButton } from "../../components/buttons/ToggleThemeButton";
 import { WalletDropdown } from "../../components/WalletDropdown";
 import { NavButton } from "../../components/buttons/NavButton";
-import { Button } from "../ui/button";
 import { useOwnerCheck } from "../../hooks/useOwnerCheck";
 import { useWalletBalance } from "../../hooks/useWalletBalance";
+import { Button } from "../ui/button";
 
 export default function Header() {
   const { theme } = useTheme();
@@ -27,7 +27,7 @@ export default function Header() {
   if (account && !isCheckingOwner && isOwner === undefined) {
     checkOwner();
   }
-  console.log("user:- ", user);
+
   return pathname !== '/' ? (
     <header
       className={`fixed top-0 left-0 right-0 z-50 h-[80px] px-8 flex items-center justify-between bg-opacity-80 ${isDarkMode ? "bg-black" : "bg-white"
