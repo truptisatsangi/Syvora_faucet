@@ -1,10 +1,13 @@
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
-  walletAddress: {
-    type: String,
-    unique: true,
-    sparse: true,
+  walletAddresses: {
+    type: [String],
+    default: [],
+  },
+  isWhitelistedAddresses: {
+    type: [String],
+    default: [],
   },
   firstName: {
     type: String,
@@ -28,10 +31,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: [8, 'Password must be at least 8 characters long'],
-  },
-  isWhitelisted: {
-    type: Boolean,
-    default: false,
   },
   borrowedAmount: {
     type: Number,
