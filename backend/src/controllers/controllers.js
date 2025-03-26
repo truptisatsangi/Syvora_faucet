@@ -469,9 +469,13 @@ export const getLastBorrowedTimestamp = async (req, res) => {
       return res.status(400).json({ error: "Invalid account address" });
     }
 
-    const accountLastBorrowed = await syvoraTreasury.lastBorrowedTimestamp(account);
+    const accountLastBorrowed = await syvoraTreasury.lastBorrowedTimestamp(
+      account
+    );
 
-    const lastBorrowedDate = new Date(Number(accountLastBorrowed) * 1000).toISOString();
+    const lastBorrowedDate = new Date(
+      Number(accountLastBorrowed) * 1000
+    ).toISOString();
 
     let user = await User.findOne({ email: email.toLowerCase() });
 

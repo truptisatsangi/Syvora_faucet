@@ -16,18 +16,22 @@ export const useBorrowing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastBorrowed, setLastBorrowed] = useState<number | null>(null);
   const [loadingLastBorrowed, setLoadingLastBorrowed] = useState(false);
-  const [timeLeftToReborrow, setTimeLeftToReborrow] = useState<string | null>(null);
+  const [timeLeftToReborrow, setTimeLeftToReborrow] = useState<string | null>(
+    null,
+  );
 
   const fetchLastBorrowed = useCallback(async () => {
     if (!user?.email || !account) return;
     setLoadingLastBorrowed(true);
     try {
       const response = await fetch(
-        `${backendUrl}/lastBorrowed?email=${user.email}&account=${account}`
+        `${backendUrl}/lastBorrowed?email=${user.email}&account=${account}`,
       );
       const data = await response.json();
       if (response.ok && data.lastBorrowedTimestamp) {
-        const borrowedTimestamp = new Date(data.lastBorrowedTimestamp).getTime();
+        const borrowedTimestamp = new Date(
+          data.lastBorrowedTimestamp,
+        ).getTime();
         setLastBorrowed(borrowedTimestamp);
       }
     } catch (error) {
@@ -157,7 +161,14 @@ export const useBorrowing = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [account, backendUrl, toast, refreshWalletBalance, canBorrow, timeLeftToReborrow]);
+  }, [
+    account,
+    backendUrl,
+    toast,
+    refreshWalletBalance,
+    canBorrow,
+    timeLeftToReborrow,
+  ]);
 
   return {
     handleWhitelistAddress,
