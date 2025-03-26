@@ -45,27 +45,46 @@ export const signUp = async (req, res) => {
 
 export const updateWhitelist = async (req, res) => {
     try {
-        const { account, isWhitelisted } = req.body;
+        const { email, account, isWhitelisted } = req.body;
 
-        if (!account || typeof isWhitelisted === "undefined") {
+        if (!email || !account || typeof isWhitelisted === "undefined") {
             return res.status(400).json({
                 success: false,
-                message: "Account and whitelist status are required.",
+                message: "Email, account, and whitelist status are required.",
             });
         }
 
-        const tx = await syvoraTreasury.updateWhitelistedAccount(account, isWhitelisted);
-        const receipt = await handleBlockchainTransaction(tx);
+        const user = await User.findOne({ email: email.toLowerCase() });
 
-        const updatedUser = await User.findOneAndUpdate(
-            { walletAddress: account.toLowerCase() },
-            { isWhitelisted },
-            { new: true, upsert: true }
-        );
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found.",
+            });
+        }
+
+        const accountLower = account.toLowerCase();
+
+        if (!user.walletAddresses.includes(accountLower)) {
+            user.walletAddresses.push(accountLower);
+        }
+
+        if (isWhitelisted) {
+            if (!user.isWhitelistedAddresses.includes(accountLower)) {
+                user.isWhitelistedAddresses.push(accountLower);
+            }
+        } else {
+            user.isWhitelistedAddresses = user.isWhitelistedAddresses.filter(addr => addr !== accountLower);
+        }
+
+        await user.save();
+
+        const tx = await syvoraTreasury.updateWhitelistedAccount(accountLower, isWhitelisted);
+        const receipt = await handleBlockchainTransaction(tx);
 
         await Transaction.create({
             transactionHash: receipt.hash,
-            walletAddress: account.toLowerCase(),
+            walletAddress: accountLower,
             type: "WHITELIST",
             amount: 0,
         });
@@ -74,7 +93,7 @@ export const updateWhitelist = async (req, res) => {
             success: true,
             message: `Whitelist updated for account ${account}.`,
             transactionHash: receipt.hash,
-            user: updatedUser,
+            user,
         });
     } catch (error) {
         console.error("Error updating whitelist:", error);
@@ -107,56 +126,12 @@ export const signIn = async (req, res) => {
             user: {
                 id: user._id,
                 firstName: user.firstName,
-                lastName: user.lastName
+                lastName: user.lastName,
+                email: user.email,
             },
         });
     } catch (err) {
         res.status(500).json({ message: 'An error occurred while signing in' });
-    }
-};
-
-export const getWalletAddressBalance = async (req, res) => {
-    try {
-        const { account } = req.body;
-
-        if (!account) {
-            return res.status(400).json({ success: false, message: 'Wallet address is required.' });
-        }
-
-        if (!ethers.isAddress(account)) {
-            return res.status(400).json({ success: false, message: 'Invalid wallet address.' });
-        }
-
-        const balance = await provider.getBalance(account);
-
-        const balanceInEther = ethers.formatEther(balance);
-
-        res.status(200).json({
-            success: true,
-            balance: balanceInEther,
-            message: 'Wallet balance fetched successfully.',
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to fetch wallet balance.',
-        });
-    }
-};
-
-export const getTreasuryBalance = async (req, res) => {
-    try {
-        if (!process.env.SYVORA_TREASURY_CONTRACT_ADDRESS || !provider) {
-            return res.status(500).json({ error: 'Server configuration is incomplete' });
-        }
-
-        const balance = await provider.getBalance(process.env.SYVORA_TREASURY_CONTRACT_ADDRESS);
-
-        const balanceInEther = ethers.formatEther(balance);
-
-        return res.status(200).json({ treasuryBalance: balanceInEther });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch treasury balance' });
     }
 };
 
@@ -301,11 +276,11 @@ export const withdrawFunds = async (req, res) => {
 };
 
 export const checkOwner = async (req, res) => {
-    if (req.method !== "POST") {
+    if (req.method !== "GET") {
         return res.status(405).json({ error: "Method not allowed" });
     }
 
-    const { userAddress } = req.body;
+    const { userAddress } = req.query;
 
     if (!userAddress) {
         return res.status(400).json({ error: "User address is required" });
@@ -316,26 +291,86 @@ export const checkOwner = async (req, res) => {
         const isOwner = owner.toLowerCase() === userAddress.toLowerCase();
         return res.status(200).json({ isOwner });
     } catch (error) {
+        console.error("Error checking owner:", error);
         return res.status(500).json({ error: "Internal server error" });
     }
-}
+};
 
-export const checkWhitelistedStatus = async (req, res) => {
-    if (req.method === "POST") {
-        try {
-            const { account } = req.body;
-            if (!account) {
-                return res.status(400).json({ error: "Account address is required" });
-            }
-
-            const isWhitelisted = await syvoraTreasury.isWhitelistedAccount(account);
-
-            return res.status(200).json({ isWhitelisted });
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ error: "Internal server error" });
-        }
+export const getWalletAddressBalance = async (req, res) => {
+    if (req.method !== "GET") {
+        return res.status(405).json({ error: "Method not allowed" });
     }
 
-    res.status(405).json({ error: "Method not allowed" });
-}
+    try {
+        const { account } = req.query;
+
+        if (!account) {
+            return res.status(400).json({ success: false, message: 'Wallet address is required.' });
+        }
+
+        if (!ethers.isAddress(account)) {
+            return res.status(400).json({ success: false, message: 'Invalid wallet address.' });
+        }
+
+        const balance = await provider.getBalance(account);
+        const balanceInEther = ethers.formatEther(balance);
+
+        res.status(200).json({
+            success: true,
+            balance: balanceInEther,
+            message: 'Wallet balance fetched successfully.',
+        });
+    } catch (error) {
+        console.error("Error fetching wallet balance:", error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch wallet balance.',
+        });
+    }
+};
+
+export const getTreasuryBalance = async (req, res) => {
+    if (req.method !== "GET") {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+        const treasuryAddress = process.env.SYVORA_TREASURY_CONTRACT_ADDRESS;
+        if (!treasuryAddress || !provider) {
+            return res.status(500).json({ error: 'Server configuration is incomplete' });
+        }
+
+        const balance = await provider.getBalance(treasuryAddress);
+        const balanceInEther = ethers.formatEther(balance);
+
+        return res.status(200).json({ treasuryBalance: balanceInEther });
+    } catch (error) {
+        console.error("Error fetching treasury balance:", error);
+        res.status(500).json({ error: 'Failed to fetch treasury balance.' });
+    }
+};
+
+export const checkWhitelistedStatus = async (req, res) => {
+    if (req.method !== "GET") {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
+
+    try {
+        const { account } = req.query;
+
+        if (!account) {
+            return res.status(400).json({ error: "Account address is required" });
+        }
+
+        if (!ethers.isAddress(account)) {
+            return res.status(400).json({ error: "Invalid account address" });
+        }
+
+        const isWhitelisted = await syvoraTreasury.isWhitelistedAccount(account);
+
+        return res.status(200).json({ isWhitelisted });
+    } catch (error) {
+        console.error("Error checking whitelisted status:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
