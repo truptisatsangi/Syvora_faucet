@@ -31,6 +31,7 @@
     "hardhat": "hardhat",
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy": "hardhat deploy"
+    "deploy": "hardhat deploy",
+    "pretty": "npx prettier --write src/"
   }
 }
