@@ -6,7 +6,7 @@ import {
     withdrawFunds,
     signUp,
     signIn,
-    getWalletAddressBalance, 
+    getWalletAddressBalance,
     getTreasuryBalance,
     checkOwner,
     checkWhitelistedStatus
@@ -19,13 +19,13 @@ router.post("/lend", lendFaucet);
 router.post("/whitelist", updateWhitelist);
 router.post("/withdraw", withdrawFunds);
 
-router.post('/balance/walletAddress', getWalletAddressBalance);
-router.get('/balance/treasury', getTreasuryBalance);
-
 router.post("/auth/signup", signUp);
 router.post("/auth/signin", signIn);
 
-router.post("/isOwner", checkOwner);
-router.post("/isWhitelisted", checkWhitelistedStatus);
+router.get('/balance/walletAddress', getWalletAddressBalance);
+router.get('/balance/treasury', getTreasuryBalance);
+
+router.get("/isOwner", checkOwner);
+router.get("/isWhitelisted", checkWhitelistedStatus);
 
 export default router;
