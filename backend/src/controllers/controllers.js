@@ -244,12 +244,10 @@ export const lendFaucet = async (req, res) => {
     const { userAddress, amount } = req.body;
 
     if (!userAddress || !amount) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "User address and amount are required.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "User address and amount are required.",
+      });
     }
 
     const etherAmount = ethers.parseEther(amount.toString());
@@ -410,10 +408,12 @@ export const checkWhitelistedStatus = async (req, res) => {
   }
 
   try {
-    const { account } = req.query;
+    const { account, email } = req.query;
 
-    if (!account) {
-      return res.status(400).json({ error: "Account address is required" });
+    if (!account || !email) {
+      return res
+        .status(400)
+        .json({ error: "Account address and email are required" });
     }
 
     if (!ethers.isAddress(account)) {
@@ -421,6 +421,32 @@ export const checkWhitelistedStatus = async (req, res) => {
     }
 
     const isWhitelisted = await syvoraTreasury.isWhitelistedAccount(account);
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const walletAddresses = user.walletAddresses || [];
+    const whitelistedAddresses = user.isWhitelistedAddresses || [];
+
+    if (
+      isWhitelisted &&
+      (!walletAddresses.includes(account) ||
+        !whitelistedAddresses.includes(account))
+    ) {
+      await User.findOneAndUpdate(
+        { email: user.email },
+        {
+          $addToSet: {
+            walletAddresses: account,
+            isWhitelistedAddresses: account,
+          },
+        },
+        { new: true }
+      );
+    }
 
     return res.status(200).json({ isWhitelisted });
   } catch (error) {
@@ -450,12 +476,10 @@ export const getLastBorrowedTimestamp = async (req, res) => {
     const lastBorrowedTimestamp = user.lastBorrowedTimestamp;
 
     if (!lastBorrowedTimestamp) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "No borrowing record found for this user.",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "No borrowing record found for this user.",
+      });
     }
 
     res.status(200).json({
