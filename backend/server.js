@@ -32,7 +32,7 @@ const startServer = async () => {
     app.use(
       cors({
         origin: (origin, callback) => {
-          console.log("origin:- ",origin, process.env.PRODUCTION_FRONTEND_URL, process.env.NODE_ENV)
+          console.log("origin:- ", origin, process.env.PRODUCTION_FRONTEND_URL, process.env.NODE_ENV)
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
           } else {
