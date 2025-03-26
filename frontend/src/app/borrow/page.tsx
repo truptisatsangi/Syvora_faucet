@@ -31,6 +31,7 @@ const BorrowPage: React.FC = () => {
     fetchLastBorrowed,
     loadingLastBorrowed,
     canBorrow,
+    timeLeftToReborrow,
   } = useBorrowing();
 
   const { toast } = useToast();
@@ -87,6 +88,13 @@ const BorrowPage: React.FC = () => {
                   className="cursor-not-allowed bg-gray-200 dark:bg-gray-800"
                 />
               </div>
+
+              {!canBorrow && timeLeftToReborrow && (
+                <div className="text-red-500 text-sm font-medium">
+                  You can borrow again in {timeLeftToReborrow}.
+                </div>
+              )}
+
               <Button
                 disabled={!canBorrow || balanceLoading || loadingLastBorrowed}
                 className="w-full py-3 rounded-lg flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200"

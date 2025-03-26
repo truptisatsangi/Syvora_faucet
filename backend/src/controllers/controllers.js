@@ -457,15 +457,23 @@ export const checkWhitelistedStatus = async (req, res) => {
 
 export const getLastBorrowedTimestamp = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, account } = req.query;
 
-    if (!email) {
+    if (!account || !email) {
       return res
         .status(400)
-        .json({ success: false, message: "Email address is required." });
+        .json({ error: "Account address and email are required" });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!ethers.isAddress(account)) {
+      return res.status(400).json({ error: "Invalid account address" });
+    }
+
+    const accountLastBorrowed = await syvoraTreasury.lastBorrowedTimestamp(account);
+
+    const lastBorrowedDate = new Date(Number(accountLastBorrowed) * 1000).toISOString();
+
+    let user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
       return res
@@ -473,19 +481,15 @@ export const getLastBorrowedTimestamp = async (req, res) => {
         .json({ success: false, message: "User not found." });
     }
 
-    const lastBorrowedTimestamp = user.lastBorrowedTimestamp;
-
-    if (!lastBorrowedTimestamp) {
-      return res.status(404).json({
-        success: false,
-        message: "No borrowing record found for this user.",
-      });
+    if (!user.lastBorrowedTimestamp) {
+      user.lastBorrowedTimestamp = lastBorrowedDate;
+      await user.save();
     }
 
     res.status(200).json({
       success: true,
       email: user.email,
-      lastBorrowedTimestamp: lastBorrowedTimestamp,
+      lastBorrowedTimestamp: user.lastBorrowedTimestamp,
     });
   } catch (error) {
     console.error("Error retrieving last borrowed timestamp:", error);

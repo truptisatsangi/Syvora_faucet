@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
 import { useWallet } from "../context/WalletContext";
 import { useConfig } from "../context/ConfigContext";
@@ -16,30 +16,56 @@ export const useBorrowing = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastBorrowed, setLastBorrowed] = useState<number | null>(null);
   const [loadingLastBorrowed, setLoadingLastBorrowed] = useState(false);
+  const [timeLeftToReborrow, setTimeLeftToReborrow] = useState<string | null>(null);
 
   const fetchLastBorrowed = useCallback(async () => {
-    if (!user?.email) return;
+    if (!user?.email || !account) return;
     setLoadingLastBorrowed(true);
     try {
       const response = await fetch(
-        `${backendUrl}/lastBorrowed?email=${user.email}`,
+        `${backendUrl}/lastBorrowed?email=${user.email}&account=${account}`
       );
       const data = await response.json();
-      if (response.ok) {
-        setLastBorrowed(data.lastBorrowedTimestamp);
+      if (response.ok && data.lastBorrowedTimestamp) {
+        const borrowedTimestamp = new Date(data.lastBorrowedTimestamp).getTime();
+        setLastBorrowed(borrowedTimestamp);
       }
     } catch (error) {
       console.error("Error fetching last borrowed timestamp:", error);
     } finally {
       setLoadingLastBorrowed(false);
     }
-  }, [backendUrl, user]);
+  }, [backendUrl, user, account]);
 
   const canBorrow = () => {
     if (!lastBorrowed) return true;
     const eightHoursAgo = Date.now() - 8 * 60 * 60 * 1000;
     return lastBorrowed < eightHoursAgo;
   };
+
+  const calculateTimeLeft = useCallback(() => {
+    if (!lastBorrowed) {
+      setTimeLeftToReborrow(null);
+      return;
+    }
+
+    const nextBorrowTime = lastBorrowed + 8 * 60 * 60 * 1000;
+    const timeLeft = nextBorrowTime - Date.now();
+
+    if (timeLeft > 0) {
+      const hours = Math.floor(timeLeft / (60 * 60 * 1000));
+      const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+      setTimeLeftToReborrow(`${hours}h ${minutes}m`);
+    } else {
+      setTimeLeftToReborrow(null);
+    }
+  }, [lastBorrowed]);
+
+  useEffect(() => {
+    calculateTimeLeft();
+    const interval = setInterval(calculateTimeLeft, 60000);
+    return () => clearInterval(interval);
+  }, [calculateTimeLeft]);
 
   const handleWhitelistAddress = useCallback(async () => {
     if (!account || !user) {
@@ -91,6 +117,15 @@ export const useBorrowing = () => {
       return;
     }
 
+    if (!canBorrow()) {
+      toast({
+        title: "Wait",
+        description: `You need to wait ${timeLeftToReborrow} more to borrow again.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const response = await fetch(`${backendUrl}/borrow`, {
@@ -105,6 +140,7 @@ export const useBorrowing = () => {
           description: "Tokens borrowed successfully.",
         });
         refreshWalletBalance();
+        fetchLastBorrowed();
       } else {
         toast({
           variant: "destructive",
@@ -121,7 +157,7 @@ export const useBorrowing = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [account, backendUrl, toast, refreshWalletBalance]);
+  }, [account, backendUrl, toast, refreshWalletBalance, canBorrow, timeLeftToReborrow]);
 
   return {
     handleWhitelistAddress,
@@ -131,5 +167,6 @@ export const useBorrowing = () => {
     fetchLastBorrowed,
     loadingLastBorrowed,
     canBorrow: canBorrow(),
+    timeLeftToReborrow,
   };
 };
