@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useWallet } from "../context/WalletContext";
 import { useConfig } from "../context/ConfigContext";
+import { useAuth } from "../context/AuthContext";
 
 const useWhitelistedStatus = () => {
+  const { user } = useAuth();
   const { account } = useWallet();
   const { backendUrl } = useConfig();
 
@@ -15,7 +17,7 @@ const useWhitelistedStatus = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${backendUrl}/isWhitelisted?account=${account}`,
+        `${backendUrl}/isWhitelisted?account=${account}&email=${user.email}`,
       );
       if (response.ok) {
         const data = await response.json();
