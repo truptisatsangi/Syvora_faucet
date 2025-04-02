@@ -1,11 +1,11 @@
 import SignInForm from "../../../components/forms/SignInForm";
 
-const page = () => {
+const SignInPage = () => {
   return (
-    <div className="flex items-center justify-center min-h-full w-96 mt-20">
+    <div className="flex items-center justify-center min-h-full w-full mt-20">
       <SignInForm />
     </div>
   );
 };
 
-export default page;
+export default SignInPage;
