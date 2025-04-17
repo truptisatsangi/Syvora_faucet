@@ -1,7 +1,8 @@
 "use client";
 
+import { ClipboardCheck, Copy } from "lucide-react";
 import { useTheme } from "next-themes";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "../../components/ui/button";
 import {
@@ -31,10 +32,11 @@ const BorrowPage: React.FC = () => {
     loadingLastBorrowed,
     canBorrow,
     timeLeftToReborrow,
-    isCorrectUser
+    isCorrectUser,
   } = useBorrowing();
 
   const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchLastBorrowed();
@@ -51,78 +53,87 @@ const BorrowPage: React.FC = () => {
     if (account && !isWalletBalanceLoading && Number(walletBalance) > 0.5) {
       toast({
         variant: "destructive",
-        title: "Wallet walletBalance too high",
-        description: "Your walletBalance must be below 0.5 ETH to borrow.",
+        title: "Wallet balance too high",
+        description: "Your wallet balance must be below 0.5 ETH to borrow.",
       });
     }
-    if (isConnected && !isCorrectUser) {
+    if (isConnected && isCorrectUser === false) {
       toast({
         variant: "destructive",
         title: "Incorrect user",
-        description: "Please ensure you are using the correct wallet. As this wallet address is assigned to someone.",
+        description: "This wallet is already associated with another user.",
       });
     }
   }, [account, isWalletBalanceLoading, walletBalance, isConnected, isCorrectUser, toast]);
 
+  const handleCopy = () => {
+    if (!account) return;
+    navigator.clipboard.writeText(account);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-opacity-80 backdrop-blur-sm ${isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"} border-b shadow-md`}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-opacity-80 backdrop-blur-sm ${isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
+        } border-b shadow-md`}
     >
-      <Card className="w-full max-w-md backdrop-blur-lg shadow-lg border rounded-lg p-4">
+      <Card className="w-full max-w-md p-4 shadow-lg border rounded-lg">
         <CardHeader>
           <CardTitle className="text-2xl font-medium">Borrow Tokens</CardTitle>
-          <CardDescription className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            Borrow tokens seamlessly. Ensure your wallet is connected to
-            proceed. You can borrow if your wallet is whitelisted, has less than
+          <CardDescription className="mt-2 text-sm text-muted-foreground">
+            Borrow tokens seamlessly. You can borrow if your wallet is whitelisted, has less than
             0.5 ETH, and it has been at least 8 hours since your last borrow.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {account && (
-            <>
-              <div className="mb-4">
-                <label
-                  htmlFor="walletAddress"
-                  className="block text-sm font-semibold mb-2 text-gray-800 dark:text-gray-200"
-                >
-                  Wallet Address
-                </label>
-                <Input
-                  id="walletAddress"
-                  type="text"
-                  value={account}
-                  readOnly
-                  className="cursor-not-allowed bg-gray-200 dark:bg-gray-800"
-                />
-              </div>
-
-              {!canBorrow && timeLeftToReborrow && (
-                <div className="text-red-500 text-sm font-medium">
-                  You can borrow again in {timeLeftToReborrow}.
-                </div>
+          <div className="flex items-center space-x-2">
+            <Input
+              value={account || ""}
+              readOnly
+              className="text-sm font-mono"
+            />
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={handleCopy}
+              className="shrink-0"
+            >
+              {copied ? (
+                <ClipboardCheck className="w-4 h-4 text-green-600" />
+              ) : (
+                <Copy className="w-4 h-4" />
               )}
+            </Button>
+          </div>
+
+          {loadingLastBorrowed ? (
+            <Spinner />
+          ) : (
+            <>
+              <p className="text-sm">
+                {canBorrow
+                  ? "You are eligible to borrow now."
+                  : `Please wait ${timeLeftToReborrow} to borrow again.`}
+              </p>
 
               <Button
                 disabled={
+                  isSubmitting ||
                   !isWhitelisted ||
-                  !isCorrectUser ||
-                  !canBorrow ||
-                  isWalletBalanceLoading ||
-                  loadingLastBorrowed ||
-                  Number(walletBalance) > 0.5
+                  Number(walletBalance) > 0.5 ||
+                  !canBorrow
                 }
-                className="w-full py-3 rounded-lg flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200"
-                onClick={
-                  isWhitelisted ? handleBorrowTokens : handleWhitelistAddress
-                }
+                onClick={isWhitelisted ? handleBorrowTokens : handleWhitelistAddress}
+                className="px-4 w-full"
               >
-                {isSubmitting ? (
-                  <Spinner size="sm" className="text-white" />
-                ) : isWhitelisted ? (
-                  "Borrow Tokens"
-                ) : (
-                  "Whitelist Address"
-                )}
+                {isSubmitting
+                  ? isWhitelisted
+                    ? "Submitting..."
+                    : "Whitelisting..."
+                  : isWhitelisted
+                    ? "Borrow Tokens"
+                    : "Whitelist Wallet"}
               </Button>
             </>
           )}
