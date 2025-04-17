@@ -15,6 +15,7 @@ const SocialLogin = () => {
       {socialPlatforms.map(({ name, icon: Icon, login }) => (
         <Button
           key={name}
+          type="button"
           variant="outline"
           className="w-full flex items-center justify-center gap-2"
           onClick={login}
