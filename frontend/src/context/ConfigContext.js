@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+
 import { getConfig } from "../config/config";
 
 const ConfigContext = createContext(getConfig());
