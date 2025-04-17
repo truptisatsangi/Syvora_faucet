@@ -1,41 +1,52 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "../../context/AuthContext";
-import { useWallet } from "../../context/WalletContext";
+import { useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
+import { useEffect } from "react";
+
+import { NavButton } from "../../components/buttons/NavButton";
 import { ToggleThemeButton } from "../../components/buttons/ToggleThemeButton";
 import { WalletDropdown } from "../../components/WalletDropdown";
-import { NavButton } from "../../components/buttons/NavButton";
+import { useAuth } from "../../context/AuthContext";
+import { useWallet } from "../../context/WalletContext";
 import { useOwnerCheck } from "../../hooks/useOwnerCheck";
-import { useWalletBalance } from "../../hooks/useWalletBalance";
 import { Button } from "../ui/button";
 
 export default function Header() {
   const { theme } = useTheme();
-  const { isConnected, account, connectMetaMask, disconnectWallet } =
-    useWallet();
-  const { signOut, user } = useAuth();
-  const pathname = usePathname();
-  const router = useRouter();
-  const isDarkMode = theme === "dark";
-
-  const { balance: walletBalance, loading } = useWalletBalance();
+  const { isConnected, account, connectMetaMask, disconnectWallet, walletBalance, isWalletBalanceLoading } = useWallet();
+  const { signOut } = useAuth();
+  const { data: session } = useSession();
   const { isOwner, isCheckingOwner, checkOwner } = useOwnerCheck();
 
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const isDarkMode = theme === "dark";
   const isAuthPage = pathname === "/signin" || pathname === "/signup";
 
-  if (account && !isCheckingOwner && isOwner === undefined) {
-    checkOwner();
-  }
+  useEffect(() => {
+    if (pathname === "/borrow" && !session?.user) {
+      router.push("/signin");
+    }
+  }, [pathname, session, router]);
 
-  return pathname !== "/" ? (
+  useEffect(() => {
+    if (account && !isCheckingOwner && isOwner === undefined) {
+      checkOwner();
+    }
+  }, [account, isCheckingOwner, isOwner, checkOwner]);
+
+  if (pathname === "/") return null;
+
+  return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 h-[80px] px-8 flex items-center justify-between bg-opacity-80 ${
-        isDarkMode ? "bg-black" : "bg-white"
-      } backdrop-blur-md border-b ${
-        isDarkMode ? "border-gray-800" : "border-gray-200"
-      } shadow-md`}
+      className={`fixed top-0 left-0 right-0 z-50 h-[80px] px-8 flex items-center justify-between bg-opacity-80 ${isDarkMode ? "bg-black" : "bg-white"
+        } backdrop-blur-md border-b ${isDarkMode ? "border-gray-800" : "border-gray-200"
+        } shadow-md`}
     >
       <div className="flex items-center gap-4">
         <Link href="/">
@@ -50,10 +61,10 @@ export default function Header() {
         </Link>
       </div>
 
-      {!isAuthPage && (
+      {!isAuthPage ? (
         <>
           <nav className="flex items-center gap-6">
-            {user && account && <NavButton path="/borrow" label="Borrow" />}
+            {session && account && <NavButton path="/borrow" label="Borrow" />}
             <NavButton path="/lend" label="Lend" />
             {isOwner && (
               <>
@@ -67,8 +78,9 @@ export default function Header() {
             <ToggleThemeButton />
             {isConnected && account ? (
               <WalletDropdown
-                walletBalance={(walletBalance as unknown as number) || 0}
-                loading={loading}
+                account={account}
+                walletBalance={(walletBalance) || 0}
+                loading={isWalletBalanceLoading}
                 isDarkMode={isDarkMode}
                 disconnectWallet={disconnectWallet}
               />
@@ -77,26 +89,25 @@ export default function Header() {
                 CONNECT
               </Button>
             )}
-            {user && (
+            {session?.user ? (
               <Button variant="destructive" onClick={signOut}>
                 Logout
               </Button>
+            ) : (
+              pathname === "/lend" && (
+                <Button variant="default" onClick={() => router.push("/signin")}>
+                  Login
+                </Button>
+              )
             )}
-            {!user && pathname === "/lend" ? (
-              <Button variant="default" onClick={() => router.push("/signin")}>
-                Login
-              </Button>
-            ) : null}
           </div>
         </>
-      )}
-
-      {isAuthPage && (
-        <div>
+      ) : (
+        <div className="flex items-center gap-4">
           <NavButton path="/lend" label="Lend Tokens" />
           <ToggleThemeButton />
         </div>
       )}
     </header>
-  ) : null;
+  );
 }
