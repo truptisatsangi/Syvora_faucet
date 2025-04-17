@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { FaGoogle, FaGithub } from "react-icons/fa";
-import { githubLogIn, googleLogIn } from "@/lib/server-actions/auth";
+import { FaGithub, FaGoogle } from "react-icons/fa";
+
+import { Button } from "../../components/ui/button";
+import { githubLogIn, googleLogIn } from "../../lib/server-actions/auth";
 
 const socialPlatforms = [
   { name: "Github", icon: FaGithub, login: githubLogIn },
