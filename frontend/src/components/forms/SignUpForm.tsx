@@ -6,13 +6,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+
+import { useToast } from "../../hooks/use-toast";
+import { credentialsSignIn } from "../../lib/server-actions/auth";
+import SocialLogin from "../buttons/SocialLogin";
+import EmailField from "../input-fields/EmailField";
+import PasswordField from "../input-fields/PasswordField";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Form } from "../ui/form";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { Form } from "../ui/form";
-import { useConfig } from "../../context/ConfigContext";
-import { useToast } from "../../hooks/use-toast";
 
 const SignUpFormSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -29,7 +33,6 @@ type SignUpFormValues = z.infer<typeof SignUpFormSchema>;
 const SignUpForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { backendUrl } = useConfig();
   const router = useRouter();
 
   const form = useForm<SignUpFormValues>({
@@ -44,35 +47,25 @@ const SignUpForm = () => {
 
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
-
     try {
-      const response = await fetch(`${backendUrl}/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
+      const response = await credentialsSignIn(
+        values.email,
+        values.password,
+        'signup',
+        values.firstName,
+        values.lastName,
+      );
+      if (response.success) {
         toast({
           title: "Sign-up successful",
           description: "Your account has been created successfully.",
           variant: "default",
           duration: 4000,
         });
-
-        router.push("/signin");
-      } else {
-        toast({
-          title: "Sign-up failed",
-          description: data.message || "An error occurred during sign-up.",
-          variant: "destructive",
-          duration: 4000,
-        });
+        router.push("/borrow");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Sign-up error:", err);
       toast({
         title: "Error",
         description: "An unexpected error occurred.",
@@ -95,50 +88,41 @@ const SignUpForm = () => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" {...form.register("email")} />
-                {form.formState.errors.email && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {form.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...form.register("password")}
-                />
-                {form.formState.errors.password && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {form.formState.errors.password.message}
-                  </p>
-                )}
-              </div>
-
+              <EmailField
+                control={form.control}
+                errors={form.formState.errors.email}
+              />
+              <PasswordField
+                control={form.control}
+                name="password"
+                errors={form.formState.errors.password}
+              />
               <div>
                 <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" {...form.register("firstName")} />
+                <Input
+                  id="firstName"
+                  {...form.register("firstName")}
+                  placeholder="Enter your First Name"
+                />
                 {form.formState.errors.firstName && (
                   <p className="mt-1 text-sm text-red-600">
                     {form.formState.errors.firstName.message}
                   </p>
                 )}
               </div>
-
               <div>
                 <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" {...form.register("lastName")} />
+                <Input
+                  id="lastName"
+                  {...form.register("lastName")}
+                  placeholder="Enter your Last Name"
+                />
                 {form.formState.errors.lastName && (
                   <p className="mt-1 text-sm text-red-600">
                     {form.formState.errors.lastName.message}
                   </p>
                 )}
               </div>
-
               <Button
                 className="w-full mt-6"
                 type="submit"
@@ -148,14 +132,17 @@ const SignUpForm = () => {
               </Button>
             </form>
           </Form>
-
-          <div className="flex justify-between mt-2 text-sm text-gray-600">
-            <span>
-              Already have an account?{" "}
-              <Link href="/signin" className="hover:underline text-blue-500">
-                Sign In
-              </Link>
+          <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border py-4">
+            <span className="relative z-10 bg-background px-2 text-muted-foreground">
+              Or continue with
             </span>
+          </div>
+          <SocialLogin />
+          <div className="text-center text-sm pt-4">
+            Already have an account?{" "}
+            <Link href="/signin" className="hover:underline text-blue-500">
+              Sign In
+            </Link>
           </div>
         </CardContent>
       </Card>
