@@ -1,37 +1,41 @@
-import { useState, useEffect, useCallback } from "react";
-import { useWallet } from "../context/WalletContext";
+import { useSession } from "next-auth/react";
+import { useCallback, useEffect, useState } from "react";
+
 import { useConfig } from "../context/ConfigContext";
-import { useAuth } from "../context/AuthContext";
+import { useWallet } from "../context/WalletContext";
 
 const useWhitelistedStatus = () => {
-  const { user } = useAuth();
   const { account } = useWallet();
   const { backendUrl } = useConfig();
+  const { data: session } = useSession();
 
   const [isWhitelisted, setIsWhitelisted] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isWhitelistLoading, setIsWhitelistLoading] = useState<boolean>(true);
 
   const fetchWhitelistStatus = useCallback(async () => {
-    if (!account) return;
+    if (!account || !session) {
+      return;
+    }
 
-    setLoading(true);
+    setIsWhitelistLoading(true);
+
     try {
       const response = await fetch(
-        `${backendUrl}/isWhitelisted?account=${account}&email=${user.email}`,
+        `${backendUrl}/isWhitelisted?account=${account}&email=${session.user?.email}`
       );
+
       if (response.ok) {
         const data = await response.json();
         setIsWhitelisted(data.isWhitelisted);
       } else {
         setIsWhitelisted(false);
       }
-    } catch (error) {
-      console.error("Error fetching whitelist status:", error);
+    } catch {
       setIsWhitelisted(false);
     } finally {
-      setLoading(false);
+      setIsWhitelistLoading(false);
     }
-  }, [account, backendUrl]);
+  }, [account, backendUrl, session]);
 
   useEffect(() => {
     fetchWhitelistStatus();
@@ -39,7 +43,7 @@ const useWhitelistedStatus = () => {
 
   return {
     isWhitelisted,
-    loading,
+    isWhitelistLoading,
     refreshWhitelistStatus: fetchWhitelistStatus,
   };
 };
