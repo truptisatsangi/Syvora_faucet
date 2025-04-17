@@ -87,26 +87,6 @@ const BorrowPage: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Input
-              value={account || ""}
-              readOnly
-              className="text-sm font-mono"
-            />
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={handleCopy}
-              className="shrink-0"
-            >
-              {copied ? (
-                <ClipboardCheck className="w-4 h-4 text-green-600" />
-              ) : (
-                <Copy className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
-
           {loadingLastBorrowed ? (
             <Spinner />
           ) : (
@@ -116,6 +96,26 @@ const BorrowPage: React.FC = () => {
                   ? "You are eligible to borrow now."
                   : `Please wait ${timeLeftToReborrow} to borrow again.`}
               </p>
+
+              {account && canBorrow && <div className="flex items-center space-x-2">
+                <Input
+                  value={account || ""}
+                  readOnly
+                  className="text-sm font-mono"
+                />
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={handleCopy}
+                  className="shrink-0"
+                >
+                  {copied ? (
+                    <ClipboardCheck className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>}
 
               <Button
                 disabled={
