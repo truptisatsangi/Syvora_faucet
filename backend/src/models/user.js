@@ -10,13 +10,17 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    userName: {
+      type: String,
+      required: false,
+    },
     firstName: {
       type: String,
-      required: true,
+      required: false,
     },
     lastName: {
       type: String,
-      required: true,
+      required: false,
     },
     email: {
       type: String,
@@ -24,14 +28,24 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       match: [
-        /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-        "Please fill a valid email address",
+        /^[a-zA-Z0-9._-]+@qodeleaf\.com$/,
+        "Email must be a valid @qodeleaf.com address",
       ],
     },
     password: {
       type: String,
-      required: true,
+      required: function () {
+        return this.provider === "credentials";
+      },
       minlength: [8, "Password must be at least 8 characters long"],
+    },
+    provider: {
+      type: String,
+      enum: ["credentials", "google", "github"],
+      required: true,
+    },
+    image: {
+      type: String,
     },
     borrowedAmount: {
       type: Number,
