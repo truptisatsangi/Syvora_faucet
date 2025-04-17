@@ -127,6 +127,7 @@ const LendPage = () => {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
+              className="mt-2"
             />
           </div>
         </CardContent>
