@@ -32,6 +32,7 @@
     "compile": "hardhat compile",
     "test": "hardhat test",
     "deploy": "hardhat deploy",
-    "pretty": "npx prettier --write src/"
+    "pretty": "npx prettier --write src/",
+    "tree": "tree -a -I 'node_modules|public|.next'"
   }
 }
