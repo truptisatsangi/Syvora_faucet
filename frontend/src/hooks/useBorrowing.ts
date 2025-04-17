@@ -1,51 +1,56 @@
-import { useState, useCallback, useEffect } from "react";
-import { useToast } from "../hooks/use-toast";
-import { useWallet } from "../context/WalletContext";
+import { useSession } from "next-auth/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
 import { useConfig } from "../context/ConfigContext";
-import { useAuth } from "../context/AuthContext";
+import { useWallet } from "../context/WalletContext";
+import { useToast } from "../hooks/use-toast";
 import useWhitelistedStatus from "../hooks/useWhitelistedStatus";
-import { useWalletBalance } from "../hooks/useWalletBalance";
 
 export const useBorrowing = () => {
-  const { account } = useWallet();
+  const { account, refreshWalletBalance } = useWallet();
   const { backendUrl } = useConfig();
-  const { user } = useAuth();
   const { toast } = useToast();
-  const { refreshWalletBalance } = useWalletBalance();
   const { isWhitelisted, refreshWhitelistStatus } = useWhitelistedStatus();
+  const { data: session } = useSession();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastBorrowed, setLastBorrowed] = useState<number | null>(null);
   const [loadingLastBorrowed, setLoadingLastBorrowed] = useState(false);
-  const [timeLeftToReborrow, setTimeLeftToReborrow] = useState<string | null>(
-    null,
-  );
+  const [timeLeftToReborrow, setTimeLeftToReborrow] = useState<string | null>(null);
+  const [checkingUser, setCheckingUser] = useState(false);
+  const [isCorrectUser, setIsCorrectUser] = useState<boolean | null>(null);
+
+  const isRequestInProgress = useRef(false);
 
   const fetchLastBorrowed = useCallback(async () => {
-    if (!user?.email || !account) return;
+    if (!session?.user?.email || !account || isRequestInProgress.current) return;
+
+    isRequestInProgress.current = true;
     setLoadingLastBorrowed(true);
+
     try {
-      const response = await fetch(
-        `${backendUrl}/lastBorrowed?email=${user.email}&account=${account}`,
-      );
-      const data = await response.json();
-      if (response.ok && data.lastBorrowedTimestamp) {
-        const borrowedTimestamp = new Date(
-          data.lastBorrowedTimestamp,
-        ).getTime();
-        setLastBorrowed(borrowedTimestamp);
+      const res = await fetch(`${backendUrl}/lastBorrowed?email=${session.user.email}&account=${account}`);
+      const data = await res.json();
+
+      if (res.ok && data.lastBorrowedTimestamp) {
+        const timestamp = new Date(data.lastBorrowedTimestamp).getTime();
+        setLastBorrowed(timestamp);
+      } else {
+        console.warn("No last borrowed timestamp returned.");
       }
     } catch (error) {
       console.error("Error fetching last borrowed timestamp:", error);
     } finally {
+      isRequestInProgress.current = false;
       setLoadingLastBorrowed(false);
     }
-  }, [backendUrl, user, account]);
+  }, [backendUrl, session?.user?.email, account]);
 
-  const canBorrow = () => {
+  const canBorrow = useCallback(() => {
     if (!lastBorrowed) return true;
     const eightHoursAgo = Date.now() - 8 * 60 * 60 * 1000;
     return lastBorrowed < eightHoursAgo;
-  };
+  }, [lastBorrowed]);
 
   const calculateTimeLeft = useCallback(() => {
     if (!lastBorrowed) {
@@ -53,8 +58,8 @@ export const useBorrowing = () => {
       return;
     }
 
-    const nextBorrowTime = lastBorrowed + 8 * 60 * 60 * 1000;
-    const timeLeft = nextBorrowTime - Date.now();
+    const nextBorrow = lastBorrowed + 8 * 60 * 60 * 1000;
+    const timeLeft = nextBorrow - Date.now();
 
     if (timeLeft > 0) {
       const hours = Math.floor(timeLeft / (60 * 60 * 1000));
@@ -71,51 +76,94 @@ export const useBorrowing = () => {
     return () => clearInterval(interval);
   }, [calculateTimeLeft]);
 
+  useEffect(() => {
+    const verifyUserWithWallet = async () => {
+      if (!account || !session?.user?.email || isRequestInProgress.current) return;
+
+      isRequestInProgress.current = true;
+      setCheckingUser(true);
+
+      try {
+        const res = await fetch(`${backendUrl}/users/email/${account.trim()}`);
+        const data = await res.json();
+
+        const match = res.ok && data.email === session.user.email;
+        setIsCorrectUser(match);
+
+        toast({
+          title: match ? "Wallet Verified" : "Mismatch Detected",
+          description: match
+            ? "Your wallet address matches your registered email."
+            : "The connected wallet does not match your registered email.",
+          variant: match ? "default" : "destructive",
+        });
+      } catch (err) {
+        console.error("Error verifying wallet and email:", err);
+        toast({
+          title: "Verification Error",
+          description: "Could not verify wallet against email.",
+          variant: "destructive",
+        });
+      } finally {
+        isRequestInProgress.current = false;
+        setCheckingUser(false);
+      }
+    };
+
+    verifyUserWithWallet();
+  }, [account, session?.user?.email, backendUrl, toast]);
+
   const handleWhitelistAddress = useCallback(async () => {
-    if (!account || !user) {
+    if (!account || !session?.user?.email || isRequestInProgress.current) {
       toast({
         title: "Error",
-        description: "No wallet address or user data found.",
+        description: "No wallet or user email found.",
         variant: "destructive",
       });
       return;
     }
 
+    isRequestInProgress.current = true;
     setIsSubmitting(true);
+
     try {
-      const response = await fetch(`${backendUrl}/whitelist`, {
+      const res = await fetch(`${backendUrl}/whitelist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          account,
-          email: user.email,
-          isWhitelisted: true,
-        }),
+        body: JSON.stringify({ account, email: session.user.email, isWhitelisted: true }),
       });
 
-      if (response.ok) {
+      if (res.ok) {
         toast({
-          title: "Wallet whitelisted",
-          description: "Your wallet address has been successfully whitelisted.",
+          title: "Whitelisted",
+          description: "Your wallet has been whitelisted.",
         });
-        await refreshWhitelistStatus();
+        refreshWhitelistStatus();
+      } else {
+        toast({
+          title: "Whitelist Failed",
+          description: "Could not whitelist your wallet.",
+          variant: "destructive",
+        });
       }
-    } catch {
+    } catch (err) {
+      console.error("Error during whitelisting:", err);
       toast({
         title: "Error",
-        description: "Failed to whitelist wallet.",
+        description: "An error occurred while whitelisting.",
         variant: "destructive",
       });
     } finally {
+      isRequestInProgress.current = false;
       setIsSubmitting(false);
     }
-  }, [account, user, backendUrl, toast, refreshWhitelistStatus]);
+  }, [account, session?.user?.email, backendUrl, toast, refreshWhitelistStatus]);
 
-  const handleBorrowTokens = useCallback(async () => {
-    if (!account) {
+  const handleBorrowTokens = useCallback(() => {
+    if (!account || !session?.user?.email || isRequestInProgress.current) {
       toast({
         title: "Error",
-        description: "No wallet address found.",
+        description: "Wallet or email not found.",
         variant: "destructive",
       });
       return;
@@ -123,51 +171,52 @@ export const useBorrowing = () => {
 
     if (!canBorrow()) {
       toast({
-        title: "Wait",
-        description: `You need to wait ${timeLeftToReborrow} more to borrow again.`,
+        title: "Please Wait",
+        description: `Wait ${timeLeftToReborrow} before borrowing again.`,
         variant: "destructive",
       });
       return;
     }
 
+    isRequestInProgress.current = true;
     setIsSubmitting(true);
-    try {
-      const response = await fetch(`${backendUrl}/borrow`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, account }),
-      });
 
-      if (response.ok) {
+    fetch(`${backendUrl}/borrow`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: session.user.email, account }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Borrow request failed");
+
         toast({
-          title: "Success",
-          description: "Tokens borrowed successfully.",
+          title: "Borrowed",
+          description: "Tokens successfully borrowed.",
         });
-        refreshWalletBalance();
-        fetchLastBorrowed();
-      } else {
+
+        return refreshWalletBalance().then(() => fetchLastBorrowed());
+      })
+      .catch((err) => {
+        console.error("Error borrowing tokens:", err);
         toast({
-          variant: "destructive",
           title: "Error",
-          description: "Failed to borrow tokens.",
+          description: "An error occurred while borrowing tokens.",
+          variant: "destructive",
         });
-      }
-    } catch {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An error occurred while borrowing tokens.",
+      })
+      .finally(() => {
+        isRequestInProgress.current = false;
+        setIsSubmitting(false);
       });
-    } finally {
-      setIsSubmitting(false);
-    }
   }, [
     account,
+    session?.user?.email,
     backendUrl,
     toast,
-    refreshWalletBalance,
     canBorrow,
     timeLeftToReborrow,
+    refreshWalletBalance,
+    fetchLastBorrowed,
   ]);
 
   return {
@@ -179,5 +228,7 @@ export const useBorrowing = () => {
     loadingLastBorrowed,
     canBorrow: canBorrow(),
     timeLeftToReborrow,
+    checkingUser,
+    isCorrectUser,
   };
 };
