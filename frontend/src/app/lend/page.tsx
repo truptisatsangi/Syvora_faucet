@@ -2,14 +2,15 @@
 
 import { ethers } from "ethers";
 import { useTheme } from "next-themes";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+
 import { Button } from "../../components/ui/button";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -17,12 +18,10 @@ import { Spinner } from "../../components/ui/spinner";
 import { useWallet } from "../../context/WalletContext";
 import { useToast } from "../../hooks/use-toast";
 import { useTreasuryBalance } from "../../hooks/useTreasuryBalance";
-import { useWalletBalance } from "../../hooks/useWalletBalance";
 import { SYVORA_TREASURY_ABI } from "../../utils/constants";
 
 const LendPage = () => {
-  const { isConnected, account, signer, loading: walletLoading } = useWallet();
-  const { refreshWalletBalance } = useWalletBalance();
+  const { isConnected, account, signer, refreshWalletBalance } = useWallet();
   const { toast } = useToast();
   const [amount, setAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,9 +53,9 @@ const LendPage = () => {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
+    setIsSubmitting(true);
 
+    try {
       const contract = new ethers.Contract(
         process.env.NEXT_PUBLIC_SYVORA_TREASURY_CONTRACT_ADDRESS as string,
         SYVORA_TREASURY_ABI,
@@ -80,8 +79,8 @@ const LendPage = () => {
       });
 
       setAmount("");
-      await refreshTreasuryBalance();
-      await refreshWalletBalance();
+
+      await Promise.all([refreshTreasuryBalance(), refreshWalletBalance()]);
     } catch (error) {
       console.error("Lend failed:", error);
       toast({
@@ -94,29 +93,20 @@ const LendPage = () => {
     }
   };
 
-  if (walletLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
   return (
     <div
-      className={`fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center px-8 bg-opacity-80 ${
-        isDarkMode ? "bg-black" : "bg-white"
-      } backdrop-blur-sm`}
+      className={`fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center px-8 bg-opacity-80 ${isDarkMode ? "bg-black" : "bg-white"
+        } backdrop-blur-sm`}
     >
       <div className="absolute top-24 right-8 text-lg font-semibold">
-        {treasuryLoading ? (
-          <Spinner size="sm" />
-        ) : (
-          <>
-            <span className="mr-2">Treasury Balance:</span>
-            <span className="text-xl font-bold">{`${treasuryBalance} ETH`}</span>
-          </>
-        )}
+        <span className="mr-2">Treasury Balance:</span>
+        <span className="text-xl font-bold">
+          {treasuryLoading ? (
+            <Spinner size="lg" className="mr-2 bg-black dark:bg-white" />
+          ) : (
+            `${treasuryBalance} ETH`
+          )}
+        </span>
       </div>
       <Card className="w-full max-w-lg backdrop-blur-md shadow-lg border">
         <CardHeader>
@@ -153,7 +143,7 @@ const LendPage = () => {
             onClick={handleLend}
           >
             {isSubmitting ? (
-              <Spinner size="sm" className="bg-black dark:bg-white" />
+              <Spinner size="lg" className="mr-2 bg-black dark:bg-white" />
             ) : (
               "Lend Ether"
             )}
