@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { useConfig } from "@/context/ConfigContext";
+import { useCallback, useEffect, useState } from "react";
+
+import { useConfig } from "../context/ConfigContext";
+import { useToast } from "../hooks/use-toast";
 
 export const useTreasuryBalance = () => {
   const [treasuryBalance, setTreasuryBalance] = useState<number>(0);
@@ -8,12 +9,7 @@ export const useTreasuryBalance = () => {
   const { toast } = useToast();
   const { backendUrl } = useConfig();
 
-  useEffect(() => {
-    fetchTreasuryBalance();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [backendUrl]);
-
-  const fetchTreasuryBalance = async () => {
+  const fetchTreasuryBalance = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(`${backendUrl}/balance/treasury`);
@@ -31,11 +27,15 @@ export const useTreasuryBalance = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [backendUrl, toast]);
 
-  const refreshTreasuryBalance = async () => {
+  useEffect(() => {
+    fetchTreasuryBalance();
+  }, [fetchTreasuryBalance]);
+
+  const refreshTreasuryBalance = useCallback(async () => {
     await fetchTreasuryBalance();
-  };
+  }, [fetchTreasuryBalance]);
 
   return { treasuryBalance, loading, refreshTreasuryBalance };
 };
