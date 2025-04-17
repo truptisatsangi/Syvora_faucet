@@ -10,13 +10,14 @@ import {
 
 export const signUp = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, provider } = req.body;
 
     if (
       !firstName.trim() ||
       !lastName.trim() ||
       !email.trim() ||
-      !password.trim()
+      !password.trim() ||
+      !provider.trim()
     ) {
       return res.status(400).json({ message: "All fields are required." });
     }
@@ -34,6 +35,7 @@ export const signUp = async (req, res) => {
       lastName: lastName.trim(),
       email: email.toLowerCase(),
       password: hashedPassword,
+      provider: provider.trim().toLowerCase(),
     });
 
     await newUser.save();
@@ -41,7 +43,11 @@ export const signUp = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "User registered successfully.",
-      user: { id: newUser._id, email: newUser.email },
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        provider: newUser.provider,
+      },
     });
   } catch (err) {
     console.error("Sign-up error:", err);
@@ -50,6 +56,50 @@ export const signUp = async (req, res) => {
       success: false,
       message: err.message || "An error occurred during sign-up.",
     });
+  }
+};
+
+export const checkUserExists = async (req, res) => {
+  const { email } = req.query;
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (user) {
+      return res.json({ exists: true, user: user });
+    } else {
+      return res.json({ exists: false, user: {} });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const getUserEmailByWallet = async (req, res) => {
+  try {
+    const { walletAddress } = req.params;
+
+    if (!walletAddress) {
+      return res.status(400).json({ error: "Wallet address is required." });
+    }
+
+    const user = await User.findOne({
+      walletAddresses: { $regex: `^${walletAddress}$`, $options: "i" },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: "User not found with this wallet address." });
+    }
+
+    return res.status(200).json({ email: user.email });
+  } catch (error) {
+    console.error("Error fetching user email:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -142,6 +192,7 @@ export const signIn = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        provider: user.provider,
       },
     });
   } catch (error) {
