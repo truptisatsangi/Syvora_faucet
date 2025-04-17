@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect } from "react";
 import { useTheme } from "next-themes";
+import React, { useEffect } from "react";
+
 import { Button } from "../../components/ui/button";
 import {
   Card,
@@ -13,13 +14,11 @@ import {
 import { Input } from "../../components/ui/input";
 import { Spinner } from "../../components/ui/spinner";
 import { useWallet } from "../../context/WalletContext";
-import { useBorrowing } from "../../hooks/useBorrowing";
 import { useToast } from "../../hooks/use-toast";
-import { useWalletBalance } from "../../hooks/useWalletBalance";
+import { useBorrowing } from "../../hooks/useBorrowing";
 
 const BorrowPage: React.FC = () => {
-  const { isConnected, account } = useWallet();
-  const { balance, loading: balanceLoading } = useWalletBalance();
+  const { isConnected, account, walletBalance, isWalletBalanceLoading } = useWallet();
   const { theme } = useTheme();
   const isDarkMode = (theme ?? "light") === "dark";
 
@@ -32,6 +31,7 @@ const BorrowPage: React.FC = () => {
     loadingLastBorrowed,
     canBorrow,
     timeLeftToReborrow,
+    isCorrectUser
   } = useBorrowing();
 
   const { toast } = useToast();
@@ -45,17 +45,24 @@ const BorrowPage: React.FC = () => {
         description: "Please connect your wallet to proceed.",
       });
     }
-  }, [isConnected]);
+  }, [fetchLastBorrowed, isConnected, toast]);
 
   useEffect(() => {
-    if (account && !balanceLoading && Number(balance) > 0.5) {
+    if (account && !isWalletBalanceLoading && Number(walletBalance) > 0.5) {
       toast({
         variant: "destructive",
-        title: "Wallet balance too high",
-        description: "Your balance must be below 0.5 ETH to borrow.",
+        title: "Wallet walletBalance too high",
+        description: "Your walletBalance must be below 0.5 ETH to borrow.",
       });
     }
-  }, [account, balanceLoading, balance]);
+    if (isConnected && !isCorrectUser) {
+      toast({
+        variant: "destructive",
+        title: "Incorrect user",
+        description: "Please ensure you are using the correct wallet. As this wallet address is assigned to someone.",
+      });
+    }
+  }, [account, isWalletBalanceLoading, walletBalance, isConnected, isCorrectUser, toast]);
 
   return (
     <div
@@ -96,7 +103,14 @@ const BorrowPage: React.FC = () => {
               )}
 
               <Button
-                disabled={!canBorrow || balanceLoading || loadingLastBorrowed}
+                disabled={
+                  !isWhitelisted ||
+                  !isCorrectUser ||
+                  !canBorrow ||
+                  isWalletBalanceLoading ||
+                  loadingLastBorrowed ||
+                  Number(walletBalance) > 0.5
+                }
                 className="w-full py-3 rounded-lg flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white transition-all duration-200"
                 onClick={
                   isWhitelisted ? handleBorrowTokens : handleWhitelistAddress
