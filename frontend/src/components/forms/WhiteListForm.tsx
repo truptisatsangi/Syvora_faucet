@@ -1,19 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
+
+import { useConfig } from "../../context/ConfigContext";
+import { useToast } from "../../hooks/use-toast";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useConfig } from "../../context/ConfigContext";
-import { useToast } from "../../hooks/use-toast";
 
 const WhitelistForm = () => {
   const [email, setEmail] = useState("");

@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/button";
+import { usePathname,useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useRouter, usePathname } from "next/navigation";
+
+import { Button } from "@/components/ui/button";
 
 interface NavButtonProps {
   path: string;

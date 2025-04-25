@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useConfig } from "@/context/ConfigContext";
-import { useWallet } from "@/context/WalletContext";
+import { useEffect,useState } from "react";
+
+import { useConfig } from "./../context/ConfigContext";
+import { useWallet } from "./../context/WalletContext";
 import { useToast } from "./use-toast";
 
 export const useOwnerCheck = () => {
